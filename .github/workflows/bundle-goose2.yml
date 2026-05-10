@@ -207,7 +207,7 @@ jobs:
 
       - name: Upload Goose 2 macOS ARM64 artifact
         id: upload
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-darwin-arm64
           path: |
@@ -387,7 +387,7 @@ jobs:
           find "$BUNDLE_DIR" -type f 2>/dev/null || echo "(no bundle output found)"
 
       - name: Upload Goose 2 macOS Intel artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-darwin-x64
           path: |
@@ -543,21 +543,21 @@ jobs:
           find "$BUNDLE_DIR" -type f -exec ls -lh {} \; 2>/dev/null | head -20
 
       - name: Upload .deb package
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-linux-x64-deb
           path: ui/goose2/src-tauri/target/release/bundle/deb/*.deb
           if-no-files-found: warn
 
       - name: Upload AppImage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-linux-x64-appimage
           path: ui/goose2/src-tauri/target/release/bundle/appimage/*.AppImage
           if-no-files-found: warn
 
       - name: Upload RPM package
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-linux-x64-rpm
           path: ui/goose2/src-tauri/target/release/bundle/rpm/*.rpm
@@ -703,14 +703,14 @@ jobs:
           find "$BUNDLE_DIR" -type f 2>/dev/null || echo "(no bundle output found)"
 
       - name: Upload NSIS installer
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-windows-${{ matrix.artifact_arch }}-nsis
           path: ui/goose2/src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe
           if-no-files-found: warn
 
       - name: Upload MSI installer
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-windows-${{ matrix.artifact_arch }}-msi
           path: ui/goose2/src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
@@ -770,14 +770,14 @@ jobs:
           }
 
       - name: Upload signed NSIS installer
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-windows-x64-nsis-signed
           path: unsigned/nsis/*.exe
           if-no-files-found: error
 
       - name: Upload signed MSI installer
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Goose2-windows-x64-msi-signed
           path: unsigned/msi/*.msi
