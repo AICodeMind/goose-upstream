@@ -1,0 +1,394 @@
+{
+  "about": {
+    "buildModes": {
+      "development": "开发模式",
+      "production": "生产模式"
+    },
+    "fields": {
+      "buildMode": "构建模式",
+      "identifier": "应用标识符",
+      "license": "许可证",
+      "name": "应用名称",
+      "tauriVersion": "Tauri 版本",
+      "version": "应用版本"
+    },
+    "unavailable": "不可用",
+    "title": "关于"
+  },
+  "appearance": {
+    "accent": {
+      "colors": {
+        "blue": "蓝色",
+        "cyan": "青色",
+        "default": "默认",
+        "green": "绿色",
+        "orange": "橙色",
+        "pink": "粉色",
+        "purple": "紫色",
+        "red": "红色"
+      },
+      "description": "选择强调色",
+      "label": "强调色"
+    },
+    "density": {
+      "description": "调整界面元素间距",
+      "label": "界面密度",
+      "options": {
+        "comfortable": "舒适",
+        "compact": "紧凑",
+        "spacious": "宽松"
+      }
+    },
+    "theme": {
+      "description": "选择偏好的配色方案",
+      "label": "主题",
+      "options": {
+        "dark": "深色",
+        "light": "浅色",
+        "system": "跟随系统"
+      }
+    },
+    "title": "外观"
+  },
+  "chats": {
+    "empty": "没有已归档聊天。",
+    "messageCount_one": "{{displayCount}} 条消息",
+    "messageCount_other": "{{displayCount}} 条消息",
+    "sectionTitle": "已归档聊天",
+    "title": "聊天",
+    "types": {
+      "project": "项目聊天",
+      "standalone": "独立聊天"
+    }
+  },
+  "compaction": {
+    "goose": {
+      "autoCompact": {
+        "helper": "设为 100% 可关闭自动压缩。",
+        "label": "自动压缩阈值",
+        "loading": "加载中...",
+        "off": "关闭",
+        "saveError": "保存自动压缩设置失败。"
+      },
+      "builtIn": "内置",
+      "description": "选择星芸AI 智能体在会话中压缩较早上下文的时机。此设置适用于所有星芸AI 聊天。",
+      "label": "星芸AI（智能体）"
+    },
+    "title": "压缩"
+  },
+  "deleteProject": {
+    "description": "此项目及其所有数据将被永久删除。",
+    "title": "永久删除“{{name}}”？"
+  },
+  "extensions": {
+    "title": "扩展",
+    "description": "将星芸AI 连接到应用、服务和内置能力。",
+    "search": "搜索扩展...",
+    "empty": "没有已配置的扩展。",
+    "noResults": "没有匹配搜索的扩展。",
+    "addExtension": "添加扩展",
+    "editExtension": "编辑扩展",
+    "deleteExtension": "删除扩展",
+    "deleteConfirmation": {
+      "title": "永久删除“{{name}}”？",
+      "description": "这将永久移除此扩展及其所有设置。",
+      "confirm": "删除扩展",
+      "deleting": "正在删除..."
+    },
+    "configure": "配置 {{name}}",
+    "save": "保存",
+    "cancel": "取消",
+    "fields": {
+      "name": "名称",
+      "namePlaceholder": "my-extension",
+      "type": "类型",
+      "command": "命令",
+      "commandPlaceholder": "npx",
+      "arguments": "参数",
+      "argumentsPlaceholder": "每行一个参数",
+      "url": "URL",
+      "urlPlaceholder": "http://localhost:3000/mcp",
+      "description": "描述",
+      "descriptionPlaceholder": "这个扩展有什么作用？",
+      "timeout": "超时（秒）",
+      "envVars": "环境变量",
+      "envKeyPlaceholder": "KEY",
+      "envValuePlaceholder": "value",
+      "addEnvVar": "添加变量",
+      "removeEnvVar": "移除变量"
+    },
+    "types": {
+      "stdio": "标准输入输出",
+      "streamable_http": "HTTP",
+      "builtin": "内置"
+    },
+    "filters": {
+      "all": "全部"
+    },
+    "categories": {
+      "appsServices": "应用和服务",
+      "gooseCapabilities": "星芸AI 能力"
+    },
+    "sections": {
+      "extensions": "扩展",
+      "gooseCapabilities": "内置星芸AI 能力"
+    },
+    "showGooseCapabilities": "显示 {{count}} 个内置星芸AI 能力",
+    "hideGooseCapabilities": "隐藏内置星芸AI 能力",
+    "errors": {
+      "saveFailed": "保存扩展失败，请重试。",
+      "deleteFailed": "删除扩展失败，请重试。",
+      "nameConflict": "已存在名为“{{name}}”的扩展。"
+    }
+  },
+  "doctor": {
+    "agents": "智能体",
+    "copied": "已复制",
+    "copyDetails": "复制详情",
+    "empty": "暂无可用检查。",
+    "rerun": "重试",
+    "runFix": "运行修复命令？",
+    "runFixDescription": "将运行以下命令：",
+    "running": "正在运行检查...",
+    "title": "诊断",
+    "tools": "工具"
+  },
+  "general": {
+    "language": {
+      "description": "选择星芸AI 如何格式化和显示界面。",
+      "english": "英语",
+      "label": "语言",
+      "spanish": "西班牙语",
+      "system": "系统默认（{{language}}）",
+      "chineseSimplified": "简体中文"
+    },
+    "onboarding": {
+      "description": "下次打开星芸AI 时再次显示设置流程。",
+      "label": "引导设置",
+      "reset": "重置引导设置",
+      "resetDescription": "下次打开星芸AI 时会显示引导设置。"
+    },
+    "title": "通用",
+    "voiceInput": {
+      "label": "语音",
+      "providerLabel": "转录服务商",
+      "disabled": "已禁用",
+      "notConfiguredSuffix": "（未配置）",
+      "placeholder": "选择服务商",
+      "modelLabel": "模型",
+      "apiKeyLabel": "API Key",
+      "apiKeyDescription": "输入此服务商的 API Key。",
+      "apiKeyPlaceholder": "sk-...",
+      "apiKeyConfigured": "API Key 已配置",
+      "addApiKey": "添加 API Key",
+      "updateApiKey": "更新 API Key",
+      "removeApiKey": "移除 API Key",
+      "providerConfigLabel": "服务商凭据",
+      "providerConfigDescription": "此转录服务商使用模型服务商设置中的凭据。",
+      "openProviders": "打开服务商设置",
+      "localModelLabel": "本地 Whisper 模型",
+      "localModelDescription": "下载 Whisper 模型以在本地运行转录。选择模型后会将其设为当前本地转录模型。",
+      "noLocalModels": "没有可用的本地 Whisper 模型。",
+      "download": "下载",
+      "selectModel": "选择",
+      "selectedModel": "已选择",
+      "deleteModel": "删除",
+      "microphoneLabel": "麦克风",
+      "microphoneDescription": "选择用于语音输入的麦克风。",
+      "microphoneUnavailable": "当前环境无法访问麦克风。",
+      "microphoneAccessPrompt": "点击“授予权限”以允许使用麦克风。",
+      "grantMicrophone": "授予权限",
+      "systemMicrophone": "系统默认",
+      "unknownMicrophone": "未知麦克风",
+      "autoSubmitLabel": "自动发送短语",
+      "autoSubmitDescription": "输入逗号分隔的触发词，识别到这些词时自动发送（例如“发送”）。",
+      "providers": {
+        "openai": "OpenAI Whisper",
+        "groq": "Groq",
+        "elevenlabs": "ElevenLabs",
+        "local": "Local Whisper"
+      },
+      "downloadProgress": "正在下载... {{percent}}%",
+      "loadError": "加载语音设置失败。",
+      "saveError": "保存失败。",
+      "deleteError": "删除失败。"
+    }
+  },
+  "nav": {
+    "about": "关于",
+    "appearance": "外观",
+    "chats": "聊天",
+    "compaction": "压缩",
+    "doctor": "诊断",
+    "general": "通用",
+    "projects": "项目",
+    "providers": "配置",
+    "voice": "语音"
+  },
+  "projects": {
+    "empty": "没有已归档项目。",
+    "sectionTitle": "已归档项目",
+    "title": "项目"
+  },
+  "providers": {
+    "agents": {
+      "description": "星芸AI 已内置到你的工作区。可安装其他组件扩展你的设置。",
+      "errors": {
+        "installVerificationFailed": "安装已完成，但未在 PATH 中找到 CLI。你可能需要重启终端。"
+      },
+      "installLabel": "安装 {{name}}",
+      "progress": {
+        "installing": "正在安装 {{name}}...",
+        "step": "第 {{step}} 步，共 {{total}} 步",
+        "verifyingInstallation": "正在验证安装..."
+      },
+      "signIn": "登录",
+      "signInLabel": "登录 {{name}}",
+      "status": {
+        "checking": "正在检查...",
+        "inProgress": "正在设置",
+        "setupFailed": "设置失败"
+      },
+      "title": "智能体运行环境"
+    },
+    "custom": {
+      "actions": {
+        "addHeader": "添加请求头",
+        "addModel": "添加模型",
+        "back": "返回",
+        "create": "创建服务商",
+        "delete": "删除",
+        "deleteProvider": "删除 {{name}}",
+        "deleting": "正在删除...",
+        "editProvider": "编辑 {{name}}",
+        "hideApiKey": "隐藏 API Key",
+        "removeHeader": "移除请求头",
+        "removeModel": "移除 {{model}}",
+        "save": "保存更改",
+        "saving": "正在保存...",
+        "showApiKey": "显示 API Key"
+      },
+      "addButton": "添加自定义服务商",
+      "addTitle": "添加自定义服务商",
+      "confirmDelete": "这会移除 {{name}} 及其拥有的所有 API Key。",
+      "confirmDeleteTitle": "删除 {{name}}？",
+      "description": "连接 OpenAI 兼容、Anthropic 兼容或本地模型端点。",
+      "editTitle": "编辑自定义服务商",
+      "emptyHeaders": "没有自定义请求头。",
+      "emptyModels": "至少添加一个模型。",
+      "engines": {
+        "anthropic_compatible": "Anthropic-compatible",
+        "ollama_compatible": "Ollama-compatible",
+        "openai_compatible": "OpenAI-compatible"
+      },
+      "errors": {
+        "deleteFailed": "删除自定义服务商失败。",
+        "loadFailed": "加载自定义服务商失败。",
+        "saveFailed": "保存自定义服务商失败。",
+        "templatesFailed": "加载服务商模板失败。"
+      },
+      "fields": {
+        "apiKey": "API Key",
+        "apiKeyEditPlaceholder": "留空则保留已保存的 Key",
+        "apiKeyPlaceholder": "粘贴你的 API Key",
+        "apiUrl": "API URL",
+        "apiUrlPlaceholder": "https://api.example.com/v1",
+        "basePath": "基础路径",
+        "basePathPlaceholder": "/v1/chat/completions",
+        "displayName": "显示名称",
+        "displayNamePlaceholder": "我的服务商",
+        "engine": "引擎",
+        "headerKey": "请求头",
+        "headerValue": "值",
+        "headers": "自定义请求头",
+        "models": "模型",
+        "modelsPlaceholder": "gpt-4.1, claude-3-5-sonnet",
+        "requiresAuth": "需要认证",
+        "requiresAuthDescription": "为此服务商的请求保存 API Key。",
+        "supportsStreaming": "支持流式输出",
+        "supportsStreamingDescription": "模型生成 token 时以流式方式返回响应。"
+      },
+      "modelCount_one": "{{count}} 个模型",
+      "modelCount_other": "{{count}} 个模型",
+      "notConfigured": "未配置",
+      "validation": {
+        "apiKeyRequired": "API Key 为必填项。",
+        "apiUrlInvalid": "请输入有效的 HTTP 或 HTTPS URL。",
+        "apiUrlRequired": "API URL 为必填项。",
+        "displayNameRequired": "显示名称为必填项。",
+        "engineRequired": "请选择服务商引擎。",
+        "headerDuplicate": "请求头名称必须唯一。",
+        "headerNameInvalid": "请求头名称只能包含有效的 HTTP token 字符。",
+        "headerNameRequired": "请求头名称为必填项。",
+        "headerValueRequired": "请求头值为必填项。",
+        "modelsRequired": "至少添加一个模型。"
+      },
+      "sections": {
+        "template": "从模板开始"
+      },
+      "templates": {
+        "compatibility": {
+          "all": "全部兼容类型"
+        },
+        "clear": "清除模板",
+        "empty": "暂无可用模板。",
+        "manual": "完全自定义",
+        "manualDescription": "从空白服务商配置开始。",
+        "searchPlaceholder": "搜索模板",
+        "useTemplate": "使用模板",
+        "useTemplateDescription": "使用已知服务商的端点和模型默认值开始。"
+      }
+    },
+    "catalog": {
+      "loading": "正在加载服务商目录..."
+    },
+    "disconnect": "断开连接",
+    "models": {
+      "description": "AI 模型为你的智能体提供能力。星芸AI 需要至少一个模型才能工作，但部分智能体会自带模型。",
+      "notSet": "未设置",
+      "setup": {
+        "connected": {
+          "cloudCredentials": "已通过你的云凭据连接。",
+          "local": "正在本地运行。",
+          "oauthBrowser": "已通过星芸AI 登录连接。",
+          "oauthDeviceCode": "已通过星芸AI 设备码登录连接。"
+        },
+        "fieldDescription": {
+          "cloudCredentials": "添加所需信息以使用此服务商。",
+          "configFields": "添加所需信息以使用此服务商。",
+          "hostWithOauthFallback": "添加所需信息以使用此服务商。",
+          "singleApiKey": "添加 API Key 以使用此服务商。"
+        },
+        "hostWithOauthFallbackTerminal": "留空 Access Token，保存主机 URL，然后在终端中完成登录。",
+        "nativeConnectDescription": "使用你的现有账号登录。",
+        "pending": {
+          "cloudCredentials": "使用此服务商前，请先在终端环境中配置云凭据。",
+          "local": "此服务商在本地运行，不需要保存设置。",
+          "oauthGuided": "星芸AI 将引导你完成登录。",
+          "oauthTerminal": "在终端中完成登录。"
+        }
+      },
+      "checkingStatus": "正在检查服务商状态...",
+      "title": "模型服务商"
+    },
+    "loadingModels": "正在加载模型...",
+    "modelRefreshWarning": "凭据已保存。模型刷新需要注意：{{message}}",
+    "saved": "已保存",
+    "showFewer": "收起",
+    "showMore": "显示另外 {{count}} 个服务商",
+    "title": "配置",
+    "waitingForSignIn": "正在等待登录...",
+    "xingyun": {
+      "agentDescription": "星芸AI 内置运行环境",
+      "agentName": "星芸AI",
+      "apiKeyDescription": "星芸AI 使用内置接口，你只需要填写 API Key。你可以在控制台获取 Key：",
+      "apiKeyLink": "获取 API Key",
+      "apiKeyTitle": "星芸AI API Key",
+      "apiProviderDescription": "用于连接星芸AI API 的内置服务商",
+      "apiProviderName": "星芸AI",
+      "builtInDescription": "星芸AI 已内置到客户端，无需安装其他智能体运行环境。",
+      "builtInTitle": "内置运行环境"
+    }
+  },
+  "title": "设置"
+}

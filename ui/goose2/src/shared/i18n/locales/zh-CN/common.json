@@ -1,0 +1,104 @@
+{
+  "actions": {
+    "archive": "归档",
+    "cancel": "取消",
+    "clear": "清除",
+    "close": "关闭",
+    "copy": "复制",
+    "create": "创建",
+    "delete": "删除",
+    "duplicate": "复制一份",
+    "edit": "编辑",
+    "export": "导出",
+    "fix": "修复",
+    "import": "导入",
+    "new": "新建",
+    "next": "下一步",
+    "open": "打开",
+    "previous": "上一步",
+    "refresh": "刷新",
+    "remove": "移除",
+    "rename": "重命名",
+    "restore": "恢复",
+    "retry": "重试",
+    "run": "运行",
+    "running": "运行中",
+    "save": "保存",
+    "saveChanges": "保存更改",
+    "search": "搜索",
+    "select": "选择",
+    "send": "发送",
+    "stop": "停止",
+    "toggle": "切换",
+    "update": "更新",
+    "view": "查看"
+  },
+  "buttons": {
+    "openFixUrl": "打开修复链接"
+  },
+  "components": {
+    "codeBlock": {
+      "copyLabel": "复制代码"
+    },
+    "environmentVariables": {
+      "copyLabel": "复制环境变量",
+      "title": "环境变量",
+      "toggleVisibility": "切换值可见性"
+    },
+    "linkSafety": {
+      "copied": "已复制！",
+      "copyLink": "复制链接",
+      "description": "你即将访问外部网站。",
+      "openLink": "打开链接",
+      "title": "打开外部链接？"
+    },
+    "messageBranch": {
+      "next": "下一个分支",
+      "page": "{{current}} / {{total}}",
+      "previous": "上一个分支"
+    },
+    "plan": {
+      "toggle": "切换计划"
+    },
+    "snippet": {
+      "copyLabel": "复制"
+    },
+    "stackTrace": {
+      "copyLabel": "复制堆栈跟踪",
+      "empty": "没有堆栈帧"
+    },
+    "terminal": {
+      "clearLabel": "清除终端输出",
+      "copyLabel": "复制终端输出",
+      "title": "终端"
+    }
+  },
+  "errors": {
+    "clipboardUnavailable": "剪贴板 API 不可用"
+  },
+  "labels": {
+    "assistant": "助手",
+    "copyPath": "复制路径",
+    "revealInFileManager_mac": "在 Finder 中显示",
+    "revealInFileManager_windows": "在资源管理器中显示",
+    "revealInFileManager_linux": "在文件管理器中显示",
+    "builtIn": "内置",
+    "characterCount": "{{count}} 个字符",
+    "custom": "自定义",
+    "goose": "星芸AI",
+    "loading": "加载中...",
+    "none": "无",
+    "required": "必填"
+  },
+  "session": {
+    "defaultTitle": "新聊天"
+  },
+  "usage": {
+    "cache": "缓存",
+    "input": "输入",
+    "modelContext": "模型上下文用量",
+    "output": "输出",
+    "reasoning": "推理",
+    "totalCost": "总成本"
+  }
+}

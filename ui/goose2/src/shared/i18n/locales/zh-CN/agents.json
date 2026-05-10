@@ -1,0 +1,89 @@
+{
+  "avatar": {
+    "chooseDialogTitle": "选择头像图片",
+    "dialogFilterName": "图片",
+    "loadFailed": "加载图片失败",
+    "previewAlt": "头像预览",
+    "removeAria": "移除头像",
+    "saveFailed": "保存头像失败",
+    "unsupportedType": "不支持的图片类型",
+    "uploadAria": "拖入图片或点击上传头像"
+  },
+  "card": {
+    "ariaLabel": "智能体：{{name}}",
+    "fileBacked": "文件加载",
+    "options": "智能体选项"
+  },
+  "config": {
+    "ariaLabel": "智能体配置",
+    "createAgent": "创建智能体",
+    "fromPersona": "（来自智能体：{{value}}）",
+    "model": "模型",
+    "modelPlaceholder": "例如 claude-sonnet-4-20250514",
+    "name": "名称",
+    "namePlaceholder": "我的智能体",
+    "persona": "智能体",
+    "provider": "服务商",
+    "systemPromptOverrideCollapsed": "覆盖系统提示词 [+]",
+    "systemPromptOverrideExpanded": "覆盖系统提示词 [-]",
+    "systemPromptPlaceholder": "覆盖智能体系统提示词...",
+    "updateAgent": "更新智能体"
+  },
+  "editor": {
+    "create": "创建",
+    "created": "智能体已创建。",
+    "displayName": "显示名称",
+    "displayNamePlaceholder": "例如：代码审查员",
+    "duplicate": "复制",
+    "duplicated": "智能体已复制。",
+    "chooseProviderFirst": "请先选择服务商，再选择模型。",
+    "editTitle": "编辑智能体",
+    "model": "模型",
+    "modelPlaceholder": "选择模型",
+    "newTitle": "新建智能体",
+    "noModelsAvailable": "此服务商暂时没有可用模型。",
+    "provider": "服务商",
+    "readOnlyBuiltIn": "内置智能体为只读。可复制后自定义。",
+    "readOnlyFile": "此智能体从文件加载。你可以在此查看，但不能编辑。",
+    "saveFailed": "保存智能体失败。",
+    "savedModelUnavailable": "{{model}}（已保存，不可用）",
+    "savedModelUnavailableHelp": "此智能体使用的已保存模型不在当前服务商清单中。",
+    "saving": "正在保存...",
+    "systemPrompt": "系统提示词",
+    "systemPromptPlaceholder": "你是一个乐于助人的助手...",
+    "updated": "智能体已更新。"
+  },
+  "gallery": {
+    "createAria": "创建新智能体",
+    "dropFile": "或拖入文件",
+    "loading": "正在加载智能体",
+    "new": "新建智能体"
+  },
+  "statuses": {
+    "error": "错误",
+    "offline": "离线",
+    "online": "在线",
+    "starting": "启动中"
+  },
+  "view": {
+    "copyName": "{{name}}（副本）",
+    "deleteFailed": "删除智能体失败。",
+    "deleteDescription": "此智能体及其配置将被永久移除。",
+    "deleteTitle": "永久删除“{{name}}”？",
+    "deleted": "已删除“{{name}}”。",
+    "description": "面向特定工作流的自定义智能体配置",
+    "emptyAgentsDescription": "创建一个智能体即可开始。",
+    "emptyAgentsTitle": "暂无智能体",
+    "exportFailed": "导出智能体失败。",
+    "exportedTo": "已导出到 {{filename}}",
+    "importInvalidExtension": "不支持的文件类型。请选择 .json 文件。",
+    "importInvalidMimeType": "不支持的文件类型。请选择 JSON 文件。",
+    "importFailed": "导入智能体失败。",
+    "imported_one": "已导入 {{count}} 个智能体。",
+    "imported_other": "已导入 {{count}} 个智能体。",
+    "newPersona": "新建智能体",
+    "optionsAria": "{{name}} 的选项",
+    "searchPlaceholder": "搜索智能体...",
+    "title": "智能体"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "appVersion": "xingyun-development",
+  "featureToggles": {
+    "costTracking": false
+  },
+  "providerAllowlist": "xingyun"
+}

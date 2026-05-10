@@ -1,0 +1,34 @@
+{
+  "actions": {
+    "collapse": "收起侧边栏",
+    "expand": "展开侧边栏",
+    "newChat": "新聊天",
+    "newChatInProject": "在项目中新建聊天",
+    "newProject": "新建项目",
+    "renameHint": "双击重命名"
+  },
+  "menu": {
+    "optionsFor": "{{label}} 的选项"
+  },
+  "navigation": {
+    "agents": "智能体",
+    "extensions": "扩展",
+    "home": "首页",
+    "sessionHistory": "会话历史",
+    "skills": "技能"
+  },
+  "search": {
+    "error": "消息搜索失败。仅显示元数据匹配，请重试。",
+    "placeholder": "搜索聊天...",
+    "searching": "正在搜索聊天..."
+  },
+  "sections": {
+    "projects": "项目",
+    "recents": "聊天"
+  },
+  "showLess": "收起",
+  "viewAllChats_one": "查看 {{displayCount}} 个聊天",
+  "viewAllChats_other": "查看全部 {{displayCount}} 个聊天",
+  "moreChats_one": "还有 {{displayCount}} 个",
+  "moreChats_other": "还有 {{displayCount}} 个"
+}
