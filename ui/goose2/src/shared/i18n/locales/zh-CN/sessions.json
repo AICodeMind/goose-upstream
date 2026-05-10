@@ -1,0 +1,34 @@
+{
+  "card": {
+    "open": "打开 {{title}}",
+    "optionsFor": "{{title}} 的选项"
+  },
+  "dateGroups": {
+    "today": "今天",
+    "yesterday": "昨天"
+  },
+  "history": {
+    "archivedSubtitle": "你已归档的会话",
+    "archivedTitle": "已归档会话",
+    "backToActive": "返回活跃会话",
+    "emptyArchived": "没有已归档会话",
+    "emptyArchivedHint": "归档会话会显示在这里。",
+    "emptyHint": "开始聊天后会显示在这里。",
+    "emptyNoMatches": "没有匹配的会话",
+    "emptyNoMatchesHint": "请尝试其他搜索词。",
+    "emptyTitle": "还没有会话",
+    "searchArchivedPlaceholder": "搜索已归档会话...",
+    "searchError": "消息搜索失败。仅显示标题、智能体和项目匹配，请重试。",
+    "searchPlaceholder": "搜索会话...",
+    "searching": "正在搜索会话...",
+    "subtitle": "浏览和搜索过往会话",
+    "toggleArchived": "已归档",
+    "title": "会话历史"
+  },
+  "search": {
+    "messageMatches_one": "{{displayCount}} 条消息匹配",
+    "messageMatches_other": "{{displayCount}} 条消息匹配"
+  },
+  "messageCount_one": "{{displayCount}} 条消息",
+  "messageCount_other": "{{displayCount}} 条消息"
+}

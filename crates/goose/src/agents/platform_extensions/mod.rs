@@ -10,6 +10,7 @@ pub mod summarize;
 pub mod summon;
 pub mod todo;
 pub mod tom;
+pub mod web_search;
 
 use std::collections::HashMap;
 
@@ -49,7 +50,7 @@ pub static PLATFORM_EXTENSIONS: Lazy<HashMap<&'static str, PlatformExtensionDef>
                 name: todo::EXTENSION_NAME,
                 display_name: "Todo",
                 description:
-                    "Enable a todo list for goose so it can keep track of what it is doing",
+                    "Enable a todo list for CodeMindX so it can keep track of what it is doing",
                 default_enabled: true,
                 unprefixed_tools: false,
                 hidden: false,
@@ -63,7 +64,7 @@ pub static PLATFORM_EXTENSIONS: Lazy<HashMap<&'static str, PlatformExtensionDef>
                 name: apps::EXTENSION_NAME,
                 display_name: "Apps",
                 description:
-                    "Create and manage custom Goose apps through chat. Apps are HTML/CSS/JavaScript and run in sandboxed windows.",
+                    "Create and manage custom CodeMindX apps through chat. Apps are HTML/CSS/JavaScript and run in sandboxed windows.",
                 default_enabled: true,
                 unprefixed_tools: false,
                 hidden: false,
@@ -132,7 +133,7 @@ pub static PLATFORM_EXTENSIONS: Lazy<HashMap<&'static str, PlatformExtensionDef>
                 name: code_execution::EXTENSION_NAME,
                 display_name: "Code Mode",
                 description:
-                    "Goose will make extension calls through code execution, saving tokens",
+                    "CodeMindX will make extension calls through code execution, saving tokens",
                 default_enabled: false,
                 unprefixed_tools: true,
                 hidden: false,
@@ -186,6 +187,19 @@ pub static PLATFORM_EXTENSIONS: Lazy<HashMap<&'static str, PlatformExtensionDef>
                 unprefixed_tools: false,
                 hidden: false,
                 client_factory: |ctx| Box::new(tom::TomClient::new(ctx).unwrap()),
+            },
+        );
+
+        map.insert(
+            web_search::EXTENSION_NAME,
+            PlatformExtensionDef {
+                name: web_search::EXTENSION_NAME,
+                display_name: "Web Search",
+                description: "Search the web with DuckDuckGo without requiring an API key",
+                default_enabled: true,
+                unprefixed_tools: false,
+                hidden: false,
+                client_factory: |ctx| Box::new(web_search::WebSearchClient::new(ctx).unwrap()),
             },
         );
 

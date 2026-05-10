@@ -1,0 +1,241 @@
+{
+  "attachments": {
+    "alt": "附件 {{index}}",
+    "chooseFilesDialogTitle": "选择要附加的文件",
+    "chooseFoldersDialogTitle": "选择要附加的文件夹",
+    "dropToAttach": "拖放文件或文件夹以添加附件",
+    "open": "打开附件 {{name}}",
+    "remove": "移除附件",
+    "view": "查看附件 {{index}}"
+  },
+  "context": {
+    "closePanel": "关闭上下文面板",
+    "openPanel": "打开上下文面板",
+    "ringAria": "上下文：已使用 {{percent}}%"
+  },
+  "errors": {
+    "sessionPreparationSuperseded": "会话配置在准备过程中发生变化，请重试发送。"
+  },
+  "contextPanel": {
+    "actions": {
+      "chooseCreateAction": "选择创建操作",
+      "refreshGitStatus": "刷新 Git 状态"
+    },
+    "createDialog": {
+      "baseBranch": "基础分支",
+      "branchDescription": "创建新分支并将此工作区切换到该分支。",
+      "branchError": "创建分支 {{branch}} 失败。",
+      "branchName": "分支名称",
+      "branchNamePlaceholder": "feature/my-branch",
+      "branchSuccess": "已创建并切换到 {{branch}}。",
+      "branchTitle": "新建分支",
+      "branchToOpen": "要打开的分支",
+      "cancel": "取消",
+      "createBranch": "创建分支",
+      "createNewBranch": "创建新分支",
+      "createWorktree": "创建 worktree",
+      "creatingBranch": "正在创建分支...",
+      "creatingWorktree": "正在创建 worktree...",
+      "noAvailableBranches": "没有可用分支",
+      "worktreeDescription": "为新分支或已有分支创建单独的 worktree。",
+      "worktreeError": "创建 worktree {{worktree}} 失败。",
+      "worktreeName": "Worktree 名称",
+      "worktreeNamePlaceholder": "my-worktree",
+      "worktreePath": "文件夹：{{path}}",
+      "worktreeSuccess": "已创建 worktree {{worktree}}。",
+      "worktreeTitle": "新建 worktree"
+    },
+    "empty": {
+      "folderNotSet": "未设置文件夹",
+      "noChanges": "没有未提交的更改",
+      "noProjectAssigned": "未分配项目"
+    },
+    "errors": {
+      "gitRead": "无法读取 Git 状态。"
+    },
+    "picker": {
+      "selectContext": "选择 worktree 或分支",
+      "worktrees": "Worktrees",
+      "allBranches": "全部分支",
+      "checkedOutBranch": "{{branch}}",
+      "currentBranch": "当前分支",
+      "dirtyTitle": "未提交的更改",
+      "dirtyDescription_one": "你有 {{count}} 个未提交的更改。希望如何处理？",
+      "dirtyDescription_other": "你有 {{count}} 个未提交的更改。希望如何处理？",
+      "stashAndSwitch": "暂存并切换",
+      "carryChanges": "带到目标分支",
+      "cancel": "取消",
+      "switchError": "切换到 {{branch}} 失败。你的更改可能与目标分支冲突。",
+      "stashError": "暂存更改失败。",
+      "stashSuccess": "更改已暂存并切换到 {{branch}}。"
+    },
+    "git": {
+      "fetch": "获取",
+      "fetchError": "拉取远端更改失败。",
+      "fetchSuccess": "已获取最新更改。",
+      "initRepo": "初始化 Git",
+      "initError": "初始化 Git 仓库失败。",
+      "pull": "拉取",
+      "pullWithCount": "拉取（{{count}}）",
+      "pullError": "拉取更改失败。",
+      "pullSuccess": "已拉取最新更改。"
+    },
+    "states": {
+      "detached": "游离状态",
+      "gitLoading": "正在加载 Git 状态..."
+    },
+    "tabs": {
+      "details": "详情",
+      "files": "文件"
+    },
+    "widgets": {
+      "artifacts": "产物",
+      "changes": "更改",
+      "changesOnBranch": "位于",
+      "workspace": "工作区"
+    }
+  },
+  "files": {
+    "empty": "分配项目后，文件会显示在这里。",
+    "folderEmpty": "文件夹为空",
+    "loadError": "无法加载此文件夹。请重试。",
+    "loading": "正在加载文件...",
+    "openFolder": "打开文件夹：{{path}}",
+    "rootLoadError": "无法加载此文件夹。请重试。"
+  },
+  "image": {
+    "view": "查看 {{label}}"
+  },
+  "input": {
+    "ariaLabel": "聊天消息输入框",
+    "placeholder": "与 {{agent}} 聊天，或用 @ 提及智能体"
+  },
+  "loading": {
+    "compacting": "正在压缩对话...",
+    "thinking": "思考中...",
+    "responding": "正在回复..."
+  },
+  "mention": {
+    "ariaLabel": "提及建议",
+    "title": "提及智能体",
+    "skillsTitle": "技能",
+    "filesTitle": "文件"
+  },
+  "notifications": {
+    "compactionComplete": "对话已压缩，较早上下文已摘要。",
+    "moveError": "移动聊天失败",
+    "renameError": "重命名聊天失败"
+  },
+  "message": {
+    "copied": "已复制",
+    "defaultImageAlt": "已附加",
+    "mcpApp": "MCP 应用",
+    "mcpAppLoading": "正在加载 MCP 应用…",
+    "mcpAppRenderError": "无法内联渲染 MCP 应用。",
+    "redactedThinking": "（思考内容已隐藏）"
+  },
+  "persona": {
+    "chooseAssistant": "选择助手",
+    "create": "创建智能体...",
+    "clearActive": "清除当前助手",
+    "defaultDescription": "未选择智能体 - 直接与星芸AI 聊天"
+  },
+  "skill": {
+    "clearSelected": "移除 {{skill}} 技能"
+  },
+  "queue": {
+    "dismiss": "取消排队消息",
+    "label": "已排队：{{text}}"
+  },
+  "skeleton": {
+    "loadingConversation": "正在加载对话"
+  },
+  "timeline": {
+    "ariaLabel": "聊天消息",
+    "emptyDescription": "发送一条消息开始",
+    "emptyTitle": "开始对话",
+    "today": "今天",
+    "yesterday": "昨天"
+  },
+  "toolbar": {
+    "agent": "智能体",
+    "attach": "附加",
+    "attachFile": "文件",
+    "attachFolder": "文件夹",
+    "chooseAgentModel": "选择智能体和模型",
+    "chooseProject": "选择项目",
+    "compactNow": "压缩",
+    "compacting": "正在压缩...",
+    "chooseProvider": "选择服务商",
+    "contextTokensBreakdown": "已使用 {{tokens}} / {{limit}} tokens",
+    "contextUsage": "上下文用量",
+    "contextUsageBreakdown": "已使用 {{used}}（剩余 {{left}}）",
+    "contextUsageTitle": "{{tokens}} / {{limit}} tokens",
+    "contextWindow": "上下文窗口",
+    "createProject": "创建项目",
+    "generalChatWithoutProject": "不带项目上下文的普通聊天",
+    "loading": "加载中...",
+    "loadingModels": "正在加载模型...",
+    "model": "模型",
+    "allModels": "全部模型",
+    "searchModels": "搜索模型...",
+    "settings": "设置",
+    "recommended": "推荐",
+    "noModelsAvailable": "没有可用模型",
+    "noSearchResults": "没有匹配的模型",
+    "showAllModels": "浏览全部模型",
+    "noProject": "无项目",
+    "selectModel": "选择模型",
+    "selectProject": "选择项目",
+    "sendMessage": "发送消息",
+    "stopGeneration": "停止生成",
+    "voiceInput": "语音听写",
+    "voiceInputDisabled": "在设置中配置语音服务商以启用听写",
+    "voiceInputRecording": "正在聆听...",
+    "voiceInputTranscribing": "正在转写...",
+    "voiceInputAutoSubmitHint": "说“提交”即可发送"
+  },
+  "tools": {
+    "content": "内容",
+    "fileNotFound": "未找到文件：{{path}}",
+    "inputSummary": {
+      "command": "命令",
+      "line": "行",
+      "path": "路径",
+      "query": "查询",
+      "resource": "资源",
+      "tool": "工具",
+      "workingDirectory": "工作目录"
+    },
+    "moreOutputs": "更多输出（{{count}}）",
+    "openFile": "打开文件",
+    "openFolder": "打开文件夹",
+    "openNamed": "打开 {{name}}",
+    "openPath": "打开路径",
+    "pathOutsideRoots": "路径在允许的根目录之外",
+    "structuredContent": "结构化内容",
+    "structuredOutput": "结构化输出",
+    "structuredOutputLines": "{{count}} 行"
+  },
+  "tool_chain": {
+    "summary": {
+      "active": "处理中",
+      "reviewing_files": "正在查看文件",
+      "running_commands": "正在运行命令",
+      "checking_resources": "正在检查资源",
+      "updating_files": "正在更新文件",
+      "steps_one": "{{count}} 步",
+      "steps_other": "{{count}} 步"
+    },
+    "internalSteps": {
+      "show": "显示内部步骤（{{count}}）",
+      "hide": "隐藏内部步骤（{{count}}）"
+    },
+    "title": {
+      "active": "正在处理 {{count}} 步",
+      "active_other": "正在处理 {{count}} 步",
+      "labeled": "{{label}}（{{count}} 步）",
+      "labeled_other": "{{label}}（{{count}} 步）"
+    }
+  }
+}

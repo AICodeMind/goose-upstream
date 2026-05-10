@@ -59,6 +59,7 @@ interface ModelProviderRowProps {
   saving?: boolean;
   inventorySyncing?: boolean;
   inventoryWarning?: string | null;
+  defaultExpanded?: boolean;
 }
 
 export function ModelProviderRow({
@@ -70,9 +71,10 @@ export function ModelProviderRow({
   saving = false,
   inventorySyncing = false,
   inventoryWarning = null,
+  defaultExpanded = false,
 }: ModelProviderRowProps) {
   const { t } = useTranslation("settings");
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const [configValues, setConfigValues] = useState<ProviderFieldValue[]>([]);
   const [draftValues, setDraftValues] = useState<Record<string, string>>({});
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -124,6 +126,12 @@ export function ModelProviderRow({
     },
     [fields, hasFields, onGetConfig, provider.id],
   );
+
+  useEffect(() => {
+    if (defaultExpanded) {
+      setExpanded(true);
+    }
+  }, [defaultExpanded]);
 
   useEffect(() => {
     if (expanded && hasFields) {

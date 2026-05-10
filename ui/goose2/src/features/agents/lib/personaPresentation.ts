@@ -15,3 +15,13 @@ export function getPersonaSource(persona: Persona): PersonaSource {
 export function isPersonaReadOnly(persona: Persona): boolean {
   return getPersonaSource(persona) !== "custom";
 }
+
+export function getPersonaProviderDisplayName(
+  provider: string | undefined,
+  brandedGooseName: string,
+): string | undefined {
+  if (provider === "goose") {
+    return brandedGooseName;
+  }
+  return provider;
+}

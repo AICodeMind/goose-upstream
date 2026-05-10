@@ -28,7 +28,7 @@ describe("AppearanceSettings", () => {
     await user.click(compact);
 
     await waitFor(() => {
-      expect(localStorage.getItem("goose-density")).toBe("compact");
+      expect(localStorage.getItem("xingyun-density")).toBe("compact");
       expect(document.documentElement.dataset.density).toBe("compact");
       expect(
         document.documentElement.style.getPropertyValue("--density-spacing"),

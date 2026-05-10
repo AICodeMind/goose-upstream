@@ -71,8 +71,8 @@
         "saveError": "Failed to save auto-compaction setting."
       },
       "builtIn": "Built in",
-      "description": "Choose when the Goose agent compacts older context during sessions. This applies to all goose chats.",
-      "label": "Goose (Agent)"
+      "description": "Choose when the XingYun AI agent compacts older context during sessions. This applies to all XingYun AI chats.",
+      "label": "XingYun AI (Agent)"
     },
     "title": "Compaction"
   },
@@ -82,7 +82,7 @@
   },
   "extensions": {
     "title": "Extensions",
-    "description": "Connect Goose to apps, services, and built-in capabilities.",
+    "description": "Connect XingYun AI to apps, services, and built-in capabilities.",
     "search": "Search extensions...",
     "empty": "No extensions configured.",
     "noResults": "No extensions match your search.",
@@ -127,14 +127,14 @@
     },
     "categories": {
       "appsServices": "Apps & services",
-      "gooseCapabilities": "Goose capabilities"
+      "gooseCapabilities": "XingYun AI capabilities"
     },
     "sections": {
       "extensions": "Extensions",
-      "gooseCapabilities": "Built-in Goose capabilities"
+      "gooseCapabilities": "Built-in XingYun AI capabilities"
     },
-    "showGooseCapabilities": "Show {{count}} built-in Goose capabilities",
-    "hideGooseCapabilities": "Hide built-in Goose capabilities",
+    "showGooseCapabilities": "Show {{count}} built-in XingYun AI capabilities",
+    "hideGooseCapabilities": "Hide built-in XingYun AI capabilities",
     "errors": {
       "saveFailed": "Failed to save extension. Please try again.",
       "deleteFailed": "Failed to delete extension. Please try again.",
@@ -155,17 +155,18 @@
   },
   "general": {
     "language": {
-      "description": "Choose how Goose formats and displays the interface.",
+      "description": "Choose how XingYun AI formats and displays the interface.",
       "english": "English",
       "label": "Language",
       "spanish": "Spanish",
-      "system": "System default ({{language}})"
+      "system": "System default ({{language}})",
+      "chineseSimplified": "Simplified Chinese"
     },
     "onboarding": {
-      "description": "Show setup again the next time Goose opens.",
+      "description": "Show setup again the next time XingYun AI opens.",
       "label": "Onboarding",
       "reset": "Reset onboarding",
-      "resetDescription": "Onboarding will appear the next time Goose opens."
+      "resetDescription": "Onboarding will appear the next time XingYun AI opens."
     },
     "title": "General",
     "voiceInput": {
@@ -221,7 +222,7 @@
     "doctor": "Doctor",
     "general": "General",
     "projects": "Projects",
-    "providers": "Providers",
+    "providers": "Configuration",
     "voice": "Voice"
   },
   "projects": {
@@ -231,7 +232,7 @@
   },
   "providers": {
     "agents": {
-      "description": "Goose is built in to your workspace. Install others to extend your setup.",
+      "description": "XingYun AI is built in to your workspace. Install others to extend your setup.",
       "errors": {
         "installVerificationFailed": "Install finished but the CLI was not found on PATH. You may need to restart your terminal."
       },
@@ -343,14 +344,14 @@
     },
     "disconnect": "Disconnect",
     "models": {
-      "description": "AI models power your agents. Goose requires one to work, but some agents bring their own.",
+      "description": "AI models power your agents. XingYun AI requires one to work, but some agents bring their own.",
       "notSet": "Not set",
       "setup": {
         "connected": {
           "cloudCredentials": "Connected through your cloud credentials.",
           "local": "Running locally.",
-          "oauthBrowser": "Connected through Goose sign-in.",
-          "oauthDeviceCode": "Connected through Goose device-code sign-in."
+          "oauthBrowser": "Connected through XingYun AI sign-in.",
+          "oauthDeviceCode": "Connected through XingYun AI device-code sign-in."
         },
         "fieldDescription": {
           "cloudCredentials": "Add the required details to use this provider.",
@@ -358,13 +359,13 @@
           "hostWithOauthFallback": "Add the required details to use this provider.",
           "singleApiKey": "Add your API key to use this provider."
         },
-        "hostWithOauthFallbackTerminal": "Leave Access Token blank, save your host URL, then run `goose configure` in your terminal to sign in.",
+        "hostWithOauthFallbackTerminal": "Leave Access Token blank, save your host URL, then finish sign-in from your terminal.",
         "nativeConnectDescription": "Sign in with your existing account.",
         "pending": {
           "cloudCredentials": "Configure your cloud credentials in your terminal environment before using this provider.",
           "local": "This provider runs locally and doesn't need saved settings.",
-          "oauthGuided": "Goose will guide you through sign-in.",
-          "oauthTerminal": "Run `goose configure` in your terminal to finish sign-in."
+          "oauthGuided": "XingYun AI will guide you through sign-in.",
+          "oauthTerminal": "Finish sign-in from your terminal."
         }
       },
       "checkingStatus": "Checking provider status...",
@@ -375,8 +376,19 @@
     "saved": "Saved",
     "showFewer": "Show fewer",
     "showMore": "Show {{count}} more providers",
-    "title": "Providers",
-    "waitingForSignIn": "Waiting for sign-in..."
+    "title": "Configuration",
+    "waitingForSignIn": "Waiting for sign-in...",
+    "xingyun": {
+      "agentDescription": "Built-in XingYun AI runtime",
+      "agentName": "XingYun AI",
+      "apiKeyDescription": "XingYun AI uses the built-in endpoint. You only need to enter an API key. Get your key from the console:",
+      "apiKeyLink": "Get API key",
+      "apiKeyTitle": "XingYun AI API key",
+      "apiProviderDescription": "Built-in provider for the XingYun AI API",
+      "apiProviderName": "XingYun AI",
+      "builtInDescription": "XingYun AI is built into this client, so no other agent runtime needs to be installed.",
+      "builtInTitle": "Built-in runtime"
+    }
   },
   "title": "Settings"
 }

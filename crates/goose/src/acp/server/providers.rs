@@ -423,6 +423,79 @@ fn refresh_plan_to_response(refresh_plan: RefreshPlan) -> RefreshProviderInvento
 }
 
 impl GooseAcpAgent {
+    async fn refresh_active_provider_instances(&self, provider_id: &str, recreate: bool) {
+        let sessions = {
+            let sessions = self.sessions.lock().await;
+            sessions
+                .iter()
+                .map(|(thread_id, session)| {
+                    (thread_id.clone(), session.internal_session_id.clone())
+                })
+                .collect::<Vec<_>>()
+        };
+
+        for (thread_id, internal_session_id) in sessions {
+            let Ok(agent) = self.get_session_agent_provider_ready(&thread_id).await else {
+                continue;
+            };
+            let Ok(provider) = agent.provider().await else {
+                continue;
+            };
+            if provider.get_name() != provider_id {
+                continue;
+            }
+
+            if !recreate {
+                if agent.clear_provider_if_name(provider_id).await {
+                    warn!(
+                        provider = %provider_id,
+                        thread_id = %thread_id,
+                        "cleared active provider after config removal"
+                    );
+                }
+                continue;
+            }
+
+            let Ok(config) = self.load_config() else {
+                continue;
+            };
+            let extensions = EnabledExtensionsState::for_session(
+                &self.session_manager,
+                &internal_session_id,
+                &config,
+            )
+            .await;
+            match self
+                .create_provider(provider_id, provider.get_model_config(), extensions)
+                .await
+            {
+                Ok(new_provider) => {
+                    if let Err(error) = agent
+                        .update_provider(new_provider, &internal_session_id)
+                        .await
+                    {
+                        warn!(
+                            provider = %provider_id,
+                            thread_id = %thread_id,
+                            error = %error,
+                            "failed to refresh active provider after config update"
+                        );
+                    }
+                }
+                Err(error) => {
+                    if agent.clear_provider_if_name(provider_id).await {
+                        warn!(
+                            provider = %provider_id,
+                            thread_id = %thread_id,
+                            error = %error,
+                            "cleared active provider after config update failed"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
     pub(super) async fn on_list_providers(
         &self,
         req: ListProvidersRequest,
@@ -862,6 +935,8 @@ impl GooseAcpAgent {
         config
             .set_secret_values(&secret_updates)
             .internal_err_ctx("Failed to save provider secret fields")?;
+        self.refresh_active_provider_instances(&req.provider_id, true)
+            .await;
 
         let provider_ids = [req.provider_id.clone()];
         let status = Self::provider_config_status(req.provider_id.clone()).await;
@@ -896,6 +971,8 @@ impl GooseAcpAgent {
         crate::providers::cleanup_provider(&req.provider_id)
             .await
             .internal_err_ctx("Failed to clean up provider state")?;
+        self.refresh_active_provider_instances(&req.provider_id, false)
+            .await;
 
         let provider_ids = [req.provider_id.clone()];
         let status = Self::provider_config_status(req.provider_id.clone()).await;

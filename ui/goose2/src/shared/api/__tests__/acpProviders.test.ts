@@ -22,7 +22,7 @@ describe("discoverAcpProvidersFromEntries", () => {
         },
       ]),
     ).toEqual([
-      { id: "goose", label: "Goose" },
+      { id: "goose", label: "星芸AI" },
       { id: "codex-acp", label: "Codex" },
     ]);
   });

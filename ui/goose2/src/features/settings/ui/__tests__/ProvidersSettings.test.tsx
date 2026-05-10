@@ -4,8 +4,11 @@ import type { ProviderInventoryEntryDto } from "@aaif/goose-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useProviderInventoryStore } from "@/features/providers/stores/providerInventoryStore";
 import { useProviderCatalogStore } from "@/features/providers/stores/providerCatalogStore";
+import { useDistroStore } from "@/features/settings/stores/distroStore";
+import { i18n } from "@/shared/i18n";
 import type { ProviderCatalogEntry } from "@/shared/types/providers";
 import { ProvidersSettings } from "../ProvidersSettings";
+import { openUrl } from "@tauri-apps/plugin-opener";
 
 const mocks = vi.hoisted(() => ({
   useCredentials: vi.fn(),
@@ -74,6 +77,23 @@ const providerCatalog: ProviderCatalogEntry[] = [
     setupMethod: "single_api_key",
     group: "default",
   },
+  {
+    id: "xingyun",
+    displayName: "xingyun",
+    category: "model",
+    description: "XingYun AI OpenAI-compatible Chat Completions API",
+    setupMethod: "single_api_key",
+    fields: [
+      {
+        key: "XINGYUN_API_KEY",
+        label: "XingYun API key",
+        secret: true,
+        required: true,
+        placeholder: "Enter your XingYun API key",
+      },
+    ],
+    group: "default",
+  },
 ];
 
 describe("ProvidersSettings", () => {
@@ -82,6 +102,30 @@ describe("ProvidersSettings", () => {
     vi.clearAllMocks();
     useProviderCatalogStore.getState().setEntries(providerCatalog);
     useProviderInventoryStore.getState().setEntries([]);
+    useDistroStore.setState({ loaded: false, manifest: { present: false } });
+    i18n.addResourceBundle(
+      "en",
+      "settings",
+      {
+        providers: {
+          xingyun: {
+            agentDescription: "Built-in XingYun AI runtime",
+            agentName: "XingYun AI",
+            apiKeyDescription:
+              "XingYun AI uses the built-in endpoint. You only need to enter an API key. Get your key from the console:",
+            apiKeyLink: "Get API key",
+            apiKeyTitle: "XingYun AI API key",
+            apiProviderDescription: "Built-in provider for the XingYun AI API",
+            apiProviderName: "XingYun AI",
+            builtInDescription:
+              "XingYun AI is built into this client, so no other agent runtime needs to be installed.",
+            builtInTitle: "Built-in runtime",
+          },
+        },
+      },
+      true,
+      true,
+    );
     mocks.useCredentials.mockReturnValue({
       configuredIds: new Set<string>(),
       loading: false,
@@ -89,7 +133,7 @@ describe("ProvidersSettings", () => {
       savingProviderIds: new Set<string>(),
       syncingProviderIds: new Set<string>(),
       inventoryWarnings: new Map<string, string>(),
-      getConfig: vi.fn(),
+      getConfig: vi.fn().mockResolvedValue([]),
       save: vi.fn(),
       remove: vi.fn(),
       completeNativeSetup: vi.fn(),
@@ -144,7 +188,7 @@ describe("ProvidersSettings", () => {
 
     render(<ProvidersSettings />);
 
-    expect(screen.getByText("Providers")).toBeInTheDocument();
+    expect(screen.getByText("Configuration")).toBeInTheDocument();
     expect(screen.getByText("Anthropic")).toBeInTheDocument();
     expect(screen.getByText("Checking provider status...")).toBeInTheDocument();
   });
@@ -192,6 +236,36 @@ describe("ProvidersSettings", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/fully custom/i)).toBeInTheDocument();
     expect(screen.getByText(/use a template/i)).toBeInTheDocument();
+  });
+
+  it("shows only the XingYun API key setup in constrained distro mode", async () => {
+    const user = userEvent.setup();
+    useDistroStore.setState({
+      loaded: true,
+      manifest: { present: true, providerAllowlist: "xingyun" },
+    });
+
+    render(<ProvidersSettings />);
+
+    expect(screen.getByText("Built-in runtime")).toBeInTheDocument();
+    expect(screen.getByText("XingYun AI API key")).toBeInTheDocument();
+    expect(await screen.findByText("XingYun API key")).toBeInTheDocument();
+    expect(
+      await screen.findByPlaceholderText("Enter your XingYun API key"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Get API key" }));
+    expect(openUrl).toHaveBeenCalledWith(
+      "https://aiapi.xing-yun.cn/console/token",
+    );
+    expect(screen.getAllByText("XingYun AI").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Goose")).not.toBeInTheDocument();
+    expect(screen.queryByText("Models")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /add custom provider/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("OpenAI")).not.toBeInTheDocument();
+    expect(screen.queryByText("Anthropic")).not.toBeInTheDocument();
   });
 
   it("shows custom inventory providers with edit and delete actions", () => {

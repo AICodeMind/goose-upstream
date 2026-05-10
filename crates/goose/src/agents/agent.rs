@@ -557,6 +557,18 @@ impl Agent {
         }
     }
 
+    pub async fn clear_provider_if_name(&self, provider_name: &str) -> bool {
+        let mut current_provider = self.provider.lock().await;
+        let should_clear = current_provider
+            .as_ref()
+            .map(|provider| provider.get_name() == provider_name)
+            .unwrap_or(false);
+        if should_clear {
+            *current_provider = None;
+        }
+        should_clear
+    }
+
     /// When set, all stdio extensions will be started via `docker exec` in the specified container.
     pub async fn set_container(&self, container: Option<Container>) {
         *self.container.lock().await = container.clone();

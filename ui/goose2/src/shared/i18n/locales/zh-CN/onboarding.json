@@ -1,0 +1,73 @@
+{
+  "windowTitle": "星芸AI 设置",
+  "eyebrow": "首次运行",
+  "title": "设置星芸AI",
+  "steps": {
+    "import": "导入",
+    "provider": "API Key",
+    "tour": "准备就绪"
+  },
+  "counts": {
+    "providers": "{{count}} 个服务商",
+    "providers_plural": "{{count}} 个服务商",
+    "extensions": "{{count}} 个扩展",
+    "extensions_plural": "{{count}} 个扩展",
+    "sessions": "{{count}} 个会话",
+    "sessions_plural": "{{count}} 个会话",
+    "skills": "{{count}} 个技能",
+    "skills_plural": "{{count}} 个技能",
+    "projects": "{{count}} 个项目",
+    "projects_plural": "{{count}} 个项目",
+    "preferences": "{{count}} 个偏好设置",
+    "preferences_plural": "{{count}} 个偏好设置",
+    "none": "没有可导入的数据"
+  },
+  "import": {
+    "title": "带上你的现有配置",
+    "description": "星芸AI 可以在你开始聊天前导入找到的现有设置和工具。",
+    "scanning": "正在查找现有星芸AI 设置和 Claude Desktop 工具...",
+    "scanFailed": "无法扫描现有配置。",
+    "emptyTitle": "未找到历史配置",
+    "emptyDescription": "你仍然可以设置星芸 API Key 并从头开始。",
+    "failed": "导入失败。",
+    "skip": "跳过导入",
+    "continue": "导入所选项",
+    "next": "继续"
+  },
+  "provider": {
+    "title": "设置星芸 API Key",
+    "description": "星芸AI 只连接星芸模型服务。请输入你的 API Key，保存后即可开始使用。",
+    "readyTitle": "星芸AI 已连接",
+    "readyDescription": "已检测到星芸 API Key。星芸AI 将使用星芸模型服务启动新聊天。",
+    "checking": "正在检查密钥状态...",
+    "xingyunName": "星芸AI",
+    "fixedProviderDescription": "唯一内置模型服务 · 默认模型 gpt-4o",
+    "apiKeyLabel": "星芸 API Key",
+    "apiKeyPlaceholder": "输入你的星芸 API Key",
+    "apiKeyHelp": "密钥会安全保存到本机密钥存储中，用于通过星芸AI API 发起请求。",
+    "apiKeyConfigured": "已保存星芸 API Key。",
+    "apiKeyRequired": "请输入星芸 API Key。",
+    "saveFailed": "无法保存星芸 API Key。",
+    "selectFailed": "无法保存默认模型设置。",
+    "loadingModels": "正在同步可用模型...",
+    "modelRefreshWarning": "模型列表暂时无法刷新：{{message}}",
+    "continue": "继续",
+    "saveAndContinue": "保存并继续"
+  },
+  "tour": {
+    "title": "准备就绪",
+    "description": "星芸AI 已准备好。以下功能现在可用。",
+    "readyWithModel": "星芸AI 将使用 {{model}} 启动。需要时可在首页切换模型。",
+    "summary": {
+      "defaultTitle": "默认",
+      "defaultFallback": "首页可用",
+      "defaultDescription": "这是你开始新聊天时星芸AI 将使用的默认配置。",
+      "extensionsTitle": "扩展",
+      "extensionsDescription": "已连接的工具可在设置中使用。导入的 Claude Desktop 工具会保持关闭，直到你启用它们。",
+      "skillsTitle": "技能",
+      "skillsDescription": "星芸AI 当前可见的个人技能。打开项目后会显示项目技能。"
+    },
+    "back": "返回",
+    "finish": "开始使用星芸AI"
+  }
+}

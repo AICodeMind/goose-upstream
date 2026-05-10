@@ -14,11 +14,12 @@ import {
 import type {
   Agent,
   Persona,
-  ProviderType,
   AgentConnectionType,
   CreateAgentRequest,
 } from "@/shared/types/agents";
-import { discoverAcpProviders, type AcpProvider } from "@/shared/api/acp";
+
+const XINGYUN_AGENT_PROVIDER = "goose";
+const XINGYUN_DEFAULT_MODEL = "qwen3.6-plus";
 
 interface AgentConfigProps {
   agent?: Agent;
@@ -34,21 +35,12 @@ export function AgentConfig({
   onCancel,
 }: AgentConfigProps) {
   const { t } = useTranslation(["agents", "common"]);
-  const [acpProviders, setAcpProviders] = useState<AcpProvider[]>([]);
-
-  useEffect(() => {
-    discoverAcpProviders()
-      .then(setAcpProviders)
-      .catch(() => setAcpProviders([]));
-  }, []);
 
   const [name, setName] = useState(agent?.name ?? "");
   const [personaId, setPersonaId] = useState(agent?.personaId ?? "");
   const connectionType: AgentConnectionType = "builtin";
-  const [provider, setProvider] = useState<ProviderType>(
-    agent?.provider ?? "goose",
-  );
-  const [model, setModel] = useState(agent?.model ?? "");
+  const provider = XINGYUN_AGENT_PROVIDER;
+  const [model, setModel] = useState(agent?.model ?? XINGYUN_DEFAULT_MODEL);
   const [systemPrompt, setSystemPrompt] = useState(agent?.systemPrompt ?? "");
   const [promptExpanded, setPromptExpanded] = useState(false);
 
@@ -60,13 +52,12 @@ export function AgentConfig({
   // Sync inherited fields when persona changes
   useEffect(() => {
     if (selectedPersona) {
-      setProvider(selectedPersona.provider ?? "goose");
-      setModel(selectedPersona.model ?? "");
+      setModel(selectedPersona.model ?? XINGYUN_DEFAULT_MODEL);
       setSystemPrompt(selectedPersona.systemPrompt);
     }
   }, [selectedPersona]);
 
-  const isValid = name.trim().length > 0 && !!provider;
+  const isValid = name.trim().length > 0;
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -77,13 +68,13 @@ export function AgentConfig({
         name: name.trim(),
         personaId: personaId || undefined,
         provider,
-        model: model.trim(),
+        model: model.trim() || XINGYUN_DEFAULT_MODEL,
         systemPrompt: systemPrompt.trim() || undefined,
         connectionType,
       };
       onSave(config);
     },
-    [isValid, name, personaId, provider, model, systemPrompt, onSave],
+    [isValid, name, personaId, model, systemPrompt, onSave],
   );
 
   return (
@@ -125,33 +116,6 @@ export function AgentConfig({
                 {p.isBuiltin
                   ? ` (${t("common:labels.builtIn").toLowerCase()})`
                   : ""}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Provider */}
-      <div className="space-y-1">
-        <Label className="text-xs font-medium text-muted-foreground">
-          {t("config.provider")}
-          {selectedPersona?.provider && (
-            <span className="ml-1 text-muted-foreground">
-              {t("config.fromPersona", { value: selectedPersona.provider })}
-            </span>
-          )}
-        </Label>
-        <Select
-          value={provider}
-          onValueChange={(v: string) => setProvider(v as ProviderType)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {acpProviders.map((providerOption) => (
-              <SelectItem key={providerOption.id} value={providerOption.id}>
-                {providerOption.label}
               </SelectItem>
             ))}
           </SelectContent>

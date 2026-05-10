@@ -8,6 +8,9 @@ import {
 } from "./constants";
 
 const SUPPORTED_LOCALE_SET = new Set<string>(SUPPORTED_LOCALES);
+const SUPPORTED_LOCALE_BY_LOWERCASE = new Map<string, AppLocale>(
+  SUPPORTED_LOCALES.map((locale) => [locale.toLowerCase(), locale]),
+);
 
 function safeCanonicalizeLocale(locale: string): string | null {
   try {
@@ -20,10 +23,18 @@ function safeCanonicalizeLocale(locale: string): string | null {
 export function normalizeLocale(locale?: string | null): AppLocale | null {
   if (!locale) return null;
 
-  const canonical = safeCanonicalizeLocale(locale)?.toLowerCase();
+  const canonical = safeCanonicalizeLocale(locale);
   if (!canonical) return null;
 
-  const base = canonical.split("-")[0];
+  const normalized = canonical.toLowerCase();
+  const exact = SUPPORTED_LOCALE_BY_LOWERCASE.get(normalized);
+  if (exact) return exact;
+
+  const [base, script] = normalized.split("-");
+  if (base === "zh" && (!script || script === "hans" || script === "cn")) {
+    return "zh-CN";
+  }
+
   return SUPPORTED_LOCALE_SET.has(base) ? (base as AppLocale) : null;
 }
 

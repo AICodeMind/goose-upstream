@@ -31,6 +31,9 @@ const ThemeProviderContext = React.createContext<
 const DEFAULT_ACCENT_COLOR_PREFERENCE = "default";
 const DEFAULT_LIGHT_ACCENT_COLOR = "#1a1a1a";
 const DEFAULT_DARK_ACCENT_COLOR = "#ffffff";
+const THEME_STORAGE_KEY = "xingyun-theme";
+const ACCENT_COLOR_STORAGE_KEY = "xingyun-accent-color";
+const DENSITY_STORAGE_KEY = "xingyun-density";
 
 function isDensity(value: string | null): value is Density {
   return DENSITIES.includes(value as Density);
@@ -117,7 +120,7 @@ export function ThemeProvider({
   defaultTheme = "system",
 }: ThemeProviderProps) {
   const [theme, setThemeState] = React.useState<ThemePreference>(() => {
-    const stored = localStorage.getItem("goose-theme");
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
     return isThemePreference(stored) ? stored : defaultTheme;
   });
 
@@ -128,13 +131,13 @@ export function ThemeProvider({
   const [accentColorPreference, setAccentColorPreference] =
     React.useState<string>(() => {
       return (
-        normalizeHexColor(localStorage.getItem("goose-accent-color")) ??
+        normalizeHexColor(localStorage.getItem(ACCENT_COLOR_STORAGE_KEY)) ??
         DEFAULT_ACCENT_COLOR_PREFERENCE
       );
     });
 
   const [density, setDensityState] = React.useState<Density>(() => {
-    const stored = localStorage.getItem("goose-density");
+    const stored = localStorage.getItem(DENSITY_STORAGE_KEY);
     return isDensity(stored) ? stored : "comfortable";
   });
 
@@ -145,29 +148,29 @@ export function ThemeProvider({
   }, [accentColorPreference, resolvedTheme]);
 
   const setTheme = React.useCallback((newTheme: ThemePreference) => {
-    localStorage.setItem("goose-theme", newTheme);
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
     setThemeState(newTheme);
   }, []);
 
   const setAccentColor = React.useCallback((color: string) => {
     const normalizedColor = normalizeHexColor(color);
     if (!normalizedColor) {
-      localStorage.removeItem("goose-accent-color");
+      localStorage.removeItem(ACCENT_COLOR_STORAGE_KEY);
       setAccentColorPreference(DEFAULT_ACCENT_COLOR_PREFERENCE);
       return;
     }
 
-    localStorage.setItem("goose-accent-color", normalizedColor);
+    localStorage.setItem(ACCENT_COLOR_STORAGE_KEY, normalizedColor);
     setAccentColorPreference(normalizedColor);
   }, []);
 
   const resetAccentColor = React.useCallback(() => {
-    localStorage.removeItem("goose-accent-color");
+    localStorage.removeItem(ACCENT_COLOR_STORAGE_KEY);
     setAccentColorPreference(DEFAULT_ACCENT_COLOR_PREFERENCE);
   }, []);
 
   const setDensity = React.useCallback((d: Density) => {
-    localStorage.setItem("goose-density", d);
+    localStorage.setItem(DENSITY_STORAGE_KEY, d);
     setDensityState(d);
   }, []);
 

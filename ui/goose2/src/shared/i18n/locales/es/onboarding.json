@@ -1,7 +1,7 @@
 {
-  "windowTitle": "Configuración de Goose",
+  "windowTitle": "Configuración de XingYun AI",
   "eyebrow": "Primer inicio",
-  "title": "Configura Goose",
+  "title": "Configura XingYun AI",
   "steps": {
     "import": "Importar",
     "provider": "Proveedor",
@@ -24,8 +24,8 @@
   },
   "import": {
     "title": "Trae tu configuración",
-    "description": "Goose puede traer los ajustes y herramientas que encuentre antes de que empieces a chatear.",
-    "scanning": "Buscando ajustes de Goose y herramientas de Claude Desktop...",
+    "description": "XingYun AI puede traer los ajustes y herramientas que encuentre antes de que empieces a chatear.",
+    "scanning": "Buscando ajustes de XingYun AI y herramientas de Claude Desktop...",
     "scanFailed": "No se pudo buscar configuración existente.",
     "emptyTitle": "No se encontró configuración previa",
     "emptyDescription": "Puedes configurar un proveedor y empezar desde cero.",
@@ -36,9 +36,9 @@
   },
   "provider": {
     "title": "Elige un valor predeterminado",
-    "description": "Elige qué debe usar Goose para los chats nuevos. La mayoría debería elegir un servicio de modelos de IA como ChatGPT, Anthropic, OpenAI, Google u Ollama.",
+    "description": "Elige qué debe usar XingYun AI para los chats nuevos. La mayoría debería elegir un servicio de modelos de IA como ChatGPT, Anthropic, OpenAI, Google u Ollama.",
     "readyTitle": "Ya conectado",
-    "readyDescription": "Elige cómo debe iniciar Goose los chats nuevos. Puedes cambiarlo cuando quieras.",
+    "readyDescription": "Elige cómo debe iniciar XingYun AI los chats nuevos. Puedes cambiarlo cuando quieras.",
     "checking": "Comprobando proveedores...",
     "noneReady": "Todavía no hay un proveedor utilizable.",
     "setupTitle": "Conecta un servicio de modelos de IA",
@@ -50,18 +50,18 @@
   },
   "tour": {
     "title": "Listo para empezar",
-    "description": "Goose está listo. Esto es lo que ya está disponible.",
-    "readyWithModel": "Goose empezará con {{model}}. Puedes cambiar de modelo desde Inicio cuando lo necesites.",
+    "description": "XingYun AI está listo. Esto es lo que ya está disponible.",
+    "readyWithModel": "XingYun AI empezará con {{model}}. Puedes cambiar de modelo desde Inicio cuando lo necesites.",
     "summary": {
       "defaultTitle": "Predeterminado",
       "defaultFallback": "Listo en Inicio",
-      "defaultDescription": "Esto es lo que Goose usará cuando empieces un chat nuevo.",
+      "defaultDescription": "Esto es lo que XingYun AI usará cuando empieces un chat nuevo.",
       "extensionsTitle": "Extensiones",
       "extensionsDescription": "Las herramientas conectadas están disponibles en Configuración. Las herramientas importadas de Claude Desktop quedan desactivadas hasta que las habilites.",
       "skillsTitle": "Habilidades",
-      "skillsDescription": "Habilidades personales que Goose puede ver ahora. Las habilidades de proyecto aparecen cuando abres un proyecto."
+      "skillsDescription": "Habilidades personales que XingYun AI puede ver ahora. Las habilidades de proyecto aparecen cuando abres un proyecto."
     },
     "back": "Atrás",
-    "finish": "Empezar a usar Goose"
+    "finish": "Empezar a usar XingYun AI"
   }
 }

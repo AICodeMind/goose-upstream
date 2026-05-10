@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { Button, buttonVariants } from "@/shared/ui/button";
 import {
   AlertDialog,
@@ -20,7 +21,10 @@ import {
 } from "@/features/providers/providerCatalog";
 import { useCredentials } from "@/features/providers/hooks/useCredentials";
 import { useDistroStore } from "@/features/settings/stores/distroStore";
-import { filterModelProvidersForDistro } from "@/features/providers/distroProviderConstraints";
+import {
+  filterModelProvidersForDistro,
+  parseProviderAllowlist,
+} from "@/features/providers/distroProviderConstraints";
 import { useCustomProviders } from "@/features/providers/hooks/useCustomProviders";
 import {
   CustomProviderChoice,
@@ -50,6 +54,8 @@ import type {
   ProviderSetupStatus,
   ProviderCatalogEntry,
 } from "@/shared/types/providers";
+
+const XINGYUN_API_KEY_URL = "https://aiapi.xing-yun.cn/console/token";
 
 function resolveStatus(
   entry: ProviderCatalogEntry,
@@ -104,6 +110,11 @@ interface PendingCustomProviderDelete {
 export function ProvidersSettings() {
   const { t } = useTranslation(["settings", "common"]);
   const distro = useDistroStore((state) => state.manifest);
+  const providerAllowlist = useMemo(
+    () => parseProviderAllowlist(distro),
+    [distro],
+  );
+  const isConstrainedDistro = providerAllowlist !== null;
   const [showAllModels, setShowAllModels] = useState(false);
   const [modelOrder, setModelOrder] = useState<string[] | null>(null);
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
@@ -140,26 +151,39 @@ export function ProvidersSettings() {
   } = useCredentials();
   const customProvidersApi = useCustomProviders();
 
-  const agents = useMemo(
-    () =>
-      toDisplayInfo(
-        getAgentProvidersFromEntries(catalogEntries),
-        configuredIds,
-      ),
-    [configuredIds, catalogEntries],
-  );
+  const agents = useMemo(() => {
+    const agentEntries = isConstrainedDistro
+      ? getAgentProvidersFromEntries(catalogEntries)
+          .filter((entry) => entry.id === "goose")
+          .map((entry) => ({
+            ...entry,
+            displayName: t("providers.xingyun.agentName"),
+            description: t("providers.xingyun.agentDescription"),
+          }))
+      : getAgentProvidersFromEntries(catalogEntries);
 
-  const allModels = useMemo(
-    () =>
-      toDisplayInfo(
-        filterModelProvidersForDistro(
-          getModelProvidersFromEntries(catalogEntries),
-          distro,
-        ),
-        configuredIds,
-      ),
-    [configuredIds, distro, catalogEntries],
-  );
+    return toDisplayInfo(agentEntries, configuredIds);
+  }, [configuredIds, catalogEntries, isConstrainedDistro, t]);
+
+  const allModels = useMemo(() => {
+    const modelEntries = filterModelProvidersForDistro(
+      getModelProvidersFromEntries(catalogEntries),
+      distro,
+    );
+    const visibleModelEntries = isConstrainedDistro
+      ? modelEntries.map((entry) =>
+          entry.id === "xingyun"
+            ? {
+                ...entry,
+                displayName: t("providers.xingyun.apiProviderName"),
+                description: t("providers.xingyun.apiProviderDescription"),
+              }
+            : entry,
+        )
+      : modelEntries;
+
+    return toDisplayInfo(visibleModelEntries, configuredIds);
+  }, [configuredIds, distro, catalogEntries, isConstrainedDistro, t]);
 
   const sortedModels = useMemo(() => {
     return [...allModels].sort((a, b) => {
@@ -217,6 +241,7 @@ export function ProvidersSettings() {
         .sort((a, b) => a.displayName.localeCompare(b.displayName)),
     [inventoryEntries],
   );
+  const visibleCustomProviders = isConstrainedDistro ? [] : customProviders;
 
   async function loadTemplates() {
     try {
@@ -326,20 +351,26 @@ export function ProvidersSettings() {
     }
   }
 
+  function openXingYunApiKeyConsole() {
+    void openUrl(XINGYUN_API_KEY_URL);
+  }
+
   return (
     <SettingsPage
       title={t("providers.title")}
       actions={
-        <Button
-          type="button"
-          variant="outline"
-          size="xxs"
-          onClick={() => void openCreateCustomProvider()}
-          leftIcon={<IconPlus />}
-          className="shrink-0"
-        >
-          {t("providers.custom.addButton")}
-        </Button>
+        isConstrainedDistro ? null : (
+          <Button
+            type="button"
+            variant="outline"
+            size="xxs"
+            onClick={() => void openCreateCustomProvider()}
+            leftIcon={<IconPlus />}
+            className="shrink-0"
+          >
+            {t("providers.custom.addButton")}
+          </Button>
+        )
       }
     >
       {catalogError && (
@@ -374,14 +405,24 @@ export function ProvidersSettings() {
       <section>
         <div className="mb-3">
           <h4 className="text-sm font-semibold">
-            {t("providers.agents.title")}
+            {isConstrainedDistro
+              ? t("providers.xingyun.builtInTitle")
+              : t("providers.agents.title")}
           </h4>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {t("providers.agents.description")}
+            {isConstrainedDistro
+              ? t("providers.xingyun.builtInDescription")
+              : t("providers.agents.description")}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div
+          className={
+            isConstrainedDistro
+              ? "grid grid-cols-1 gap-3"
+              : "grid grid-cols-2 gap-3"
+          }
+        >
           {agents.map((agent) => (
             <AgentProviderCard key={agent.id} provider={agent} />
           ))}
@@ -394,7 +435,9 @@ export function ProvidersSettings() {
         <div className="mb-3">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold">
-              {t("providers.models.title")}
+              {isConstrainedDistro
+                ? t("providers.xingyun.apiKeyTitle")
+                : t("providers.models.title")}
             </h4>
             {loading ? (
               <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -404,7 +447,20 @@ export function ProvidersSettings() {
             ) : null}
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {t("providers.models.description")}
+            {isConstrainedDistro ? (
+              <span>
+                {t("providers.xingyun.apiKeyDescription")}{" "}
+                <button
+                  type="button"
+                  onClick={openXingYunApiKeyConsole}
+                  className="text-brand underline-offset-2 hover:underline"
+                >
+                  {t("providers.xingyun.apiKeyLink")}
+                </button>
+              </span>
+            ) : (
+              t("providers.models.description")
+            )}
           </p>
         </div>
 
@@ -425,9 +481,9 @@ export function ProvidersSettings() {
           </p>
         ) : null}
 
-        {customProviders.length > 0 ? (
+        {visibleCustomProviders.length > 0 ? (
           <div className="mb-3 space-y-2">
-            {customProviders.map((provider) => (
+            {visibleCustomProviders.map((provider) => (
               <CustomProviderChoice
                 key={provider.providerId}
                 provider={provider}
@@ -455,34 +511,39 @@ export function ProvidersSettings() {
               saving={savingProviderIds.has(model.id)}
               inventorySyncing={syncingProviderIds.has(model.id)}
               inventoryWarning={inventoryWarnings.get(model.id)}
+              defaultExpanded={isConstrainedDistro}
             />
           ))}
         </div>
 
-        {!showAllModels && additionalModels.length > 0 && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAllModels(true)}
-            className="mt-2 w-full text-muted-foreground"
-          >
-            {t("providers.showMore", { count: additionalModels.length })}
-            <IconChevronDown className="size-3" />
-          </Button>
-        )}
+        {!isConstrainedDistro &&
+          !showAllModels &&
+          additionalModels.length > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAllModels(true)}
+              className="mt-2 w-full text-muted-foreground"
+            >
+              {t("providers.showMore", { count: additionalModels.length })}
+              <IconChevronDown className="size-3" />
+            </Button>
+          )}
 
-        {showAllModels && additionalModels.length > 0 && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAllModels(false)}
-            className="mt-2 w-full text-muted-foreground"
-          >
-            {t("providers.showFewer")}
-          </Button>
-        )}
+        {!isConstrainedDistro &&
+          showAllModels &&
+          additionalModels.length > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAllModels(false)}
+              className="mt-2 w-full text-muted-foreground"
+            >
+              {t("providers.showFewer")}
+            </Button>
+          )}
       </section>
 
       <CustomProviderDialog

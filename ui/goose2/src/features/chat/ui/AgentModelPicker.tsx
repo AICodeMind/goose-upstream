@@ -98,6 +98,7 @@ export function AgentModelPicker({
 
   // When in "all" view, expand the popover to full width for the search experience.
   const isAllView = modelView === "all";
+  const showAgentColumn = !isAllView && agents.length > 1;
 
   return (
     <Popover
@@ -187,13 +188,13 @@ export function AgentModelPicker({
         <div
           className={cn(
             "grid h-full gap-1 overflow-hidden",
-            isAllView
-              ? "grid-cols-1"
-              : "grid-cols-[minmax(0,1fr)_minmax(0,1fr)]",
+            showAgentColumn
+              ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+              : "grid-cols-1",
           )}
         >
           {/* Agent column — hidden in "all models" search view */}
-          {!isAllView ? (
+          {showAgentColumn ? (
             <div
               data-col="agent"
               className="flex min-h-0 min-w-0 overflow-hidden p-1"

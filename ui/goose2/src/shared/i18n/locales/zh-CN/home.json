@@ -1,0 +1,7 @@
+{
+  "greeting": {
+    "afternoon": "下午好",
+    "evening": "晚上好",
+    "morning": "早上好"
+  }
+}

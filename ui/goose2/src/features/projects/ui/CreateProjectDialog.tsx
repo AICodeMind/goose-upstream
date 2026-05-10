@@ -14,18 +14,10 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
-import {
   createProject,
   updateProject,
   type ProjectInfo,
 } from "../api/projects";
-import { discoverAcpProviders, type AcpProvider } from "@/shared/api/acp";
 import { useProjectIconSelection } from "../hooks/useProjectIconSelection";
 import {
   buildEditorText,
@@ -38,6 +30,7 @@ import { DEFAULT_PROJECT_ICON } from "../lib/projectIcons";
 import { ProjectIconPicker } from "./ProjectIconPicker";
 
 const DEFAULT_PROJECT_COLOR = "#64748b";
+const XINGYUN_AGENT_PROVIDER = "goose";
 
 function getDefaultProjectName(path: string | null | undefined): string {
   const trimmed = path?.trim();
@@ -78,22 +71,13 @@ export function CreateProjectDialog({
     resetIcon,
   } = useProjectIconSelection({ isOpen, prompt });
   const [color, setColor] = useState(DEFAULT_PROJECT_COLOR);
-  const [preferredProvider, setPreferredProvider] = useState<string | null>(
-    null,
-  );
+  const preferredProvider = XINGYUN_AGENT_PROVIDER;
   const preferredModel: string | null = null;
   const [useWorktrees, setUseWorktrees] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [acpProviders, setAcpProviders] = useState<AcpProvider[]>([]);
 
   const isEditing = !!editingProject;
-
-  useEffect(() => {
-    discoverAcpProviders()
-      .then(setAcpProviders)
-      .catch(() => setAcpProviders([]));
-  }, []);
 
   const handleAddDirectory = async () => {
     try {
@@ -147,7 +131,6 @@ export function CreateProjectDialog({
       );
       resetIcon(editingProject.icon);
       setColor(editingProject.color);
-      setPreferredProvider(editingProject.preferredProvider ?? null);
       setUseWorktrees(editingProject.useWorktrees);
       setError(null);
     } else {
@@ -160,7 +143,6 @@ export function CreateProjectDialog({
       );
       resetIcon(DEFAULT_PROJECT_ICON);
       setColor(DEFAULT_PROJECT_COLOR);
-      setPreferredProvider(null);
       setUseWorktrees(false);
       setError(null);
     }
@@ -173,7 +155,6 @@ export function CreateProjectDialog({
     setPrompt("");
     resetIcon(DEFAULT_PROJECT_ICON);
     setColor(DEFAULT_PROJECT_COLOR);
-    setPreferredProvider(null);
     setUseWorktrees(false);
     setError(null);
     onClose();
@@ -194,7 +175,7 @@ export function CreateProjectDialog({
           prompt: parsedPrompt,
           icon,
           color,
-          preferredProvider: preferredProvider || null,
+          preferredProvider,
           preferredModel,
           workingDirs,
           useWorktrees,
@@ -206,7 +187,7 @@ export function CreateProjectDialog({
           parsedPrompt,
           icon,
           color,
-          preferredProvider || null,
+          preferredProvider,
           preferredModel,
           workingDirs,
           useWorktrees,
@@ -280,33 +261,6 @@ export function CreateProjectDialog({
             onChooseIcon={chooseIcon}
             onChooseCustomIcon={handleChooseCustomIcon}
           />
-
-          {/* Provider */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-medium text-muted-foreground">
-              {t("dialog.provider")}
-            </Label>
-            <Select
-              value={preferredProvider ?? "__none__"}
-              onValueChange={(v) =>
-                setPreferredProvider(v === "__none__" ? null : v)
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("dialog.noneUseDefault")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">
-                  {t("dialog.noneUseDefault")}
-                </SelectItem>
-                {acpProviders.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           {/* Use Worktrees */}
           <div className="flex items-center gap-2">

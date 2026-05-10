@@ -396,14 +396,13 @@ pub fn discover_skills(working_dir: Option<&Path>) -> Vec<SourceEntry> {
         }
     }
 
-    for content in builtin::get_all() {
-        if let Some(source) = parse_skill_content(content, &PathBuf::new(), true) {
+    for skill in builtin::get_all() {
+        if let Some(mut source) = parse_skill_content(skill.content, &skill.path, true) {
             if !seen.contains(&source.name) {
                 seen.insert(source.name.clone());
-                let path = format!("builtin://skills/{}", source.name);
+                source.supporting_files = skill.supporting_files;
                 sources.push(SourceEntry {
                     source_type: SourceType::BuiltinSkill,
-                    path,
                     ..source
                 });
             }

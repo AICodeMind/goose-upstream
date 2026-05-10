@@ -138,7 +138,11 @@ export function getFieldSetupDescription(
 export function renderInlineCodeMessage(message: string) {
   const command = "`goose configure`";
   if (!message.includes(command)) {
-    return <p className="text-xs text-muted-foreground">{message}</p>;
+    return (
+      <p className="text-xs text-muted-foreground">
+        {message.replace("goose configure", "the CLI configure command")}
+      </p>
+    );
   }
 
   const [before, after] = message.split(command);
@@ -146,7 +150,7 @@ export function renderInlineCodeMessage(message: string) {
     <p className="text-xs text-muted-foreground">
       {before}
       <code className="rounded bg-muted px-1 py-0.5 text-xxs">
-        goose configure
+        CLI configure
       </code>
       {after}
     </p>

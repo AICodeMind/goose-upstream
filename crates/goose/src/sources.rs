@@ -1038,6 +1038,8 @@ mod tests {
         assert_eq!(builtin.path, "builtin://skills/goose-doc-guide");
         assert!(builtin.supporting_files.is_empty());
         assert!(!builtin.content.is_empty());
+        assert!(listed.iter().any(|source| source.name == "ddg-search"));
+        assert!(listed.iter().any(|source| source.name == "docx"));
     }
 
     #[test]

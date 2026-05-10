@@ -55,6 +55,29 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: (...args: unknown[]) => mockOpenDialog(...args),
 }));
 
+type TauriDragDropPayload =
+  | { type: "drop"; paths: string[]; position: { x: number; y: number } }
+  | { type: "over"; position: { x: number; y: number } }
+  | { type: "enter"; position: { x: number; y: number } }
+  | { type: "leave" };
+
+let tauriDragDropHandler:
+  | ((event: { payload: TauriDragDropPayload }) => void)
+  | undefined;
+const mockTauriDragDropUnlisten = vi.fn();
+const mockOnDragDropEvent = vi.fn(
+  (handler: (event: { payload: TauriDragDropPayload }) => void) => {
+    tauriDragDropHandler = handler;
+    return Promise.resolve(mockTauriDragDropUnlisten);
+  },
+);
+
+vi.mock("@tauri-apps/api/webview", () => ({
+  getCurrentWebview: () => ({
+    onDragDropEvent: mockOnDragDropEvent,
+  }),
+}));
+
 vi.mock("@tauri-apps/api/core", () => ({
   convertFileSrc: (path: string) => `asset://${path}`,
 }));
@@ -72,6 +95,10 @@ describe("ChatInput attachments", () => {
     });
     mockOpenDialog.mockClear();
     mockOpenDialog.mockResolvedValue(null);
+    tauriDragDropHandler = undefined;
+    mockOnDragDropEvent.mockClear();
+    mockTauriDragDropUnlisten.mockClear();
+    Reflect.deleteProperty(window, "__TAURI_INTERNALS__");
   });
 
   it("attaches a file from the toolbar menu and sends it without text", async () => {
@@ -212,6 +239,76 @@ describe("ChatInput attachments", () => {
     await waitFor(() => {
       expect(screen.getByAltText("Attachment 2")).toBeInTheDocument();
     });
+  });
+
+  it("attaches absolute paths from Tauri drag-and-drop events", async () => {
+    Object.defineProperty(window, "__TAURI_INTERNALS__", {
+      value: {},
+      configurable: true,
+    });
+    const onSend = vi.fn();
+    mockInspectAttachmentPaths.mockResolvedValue([
+      {
+        name: "report.pdf",
+        path: "/Users/test/report.pdf",
+        kind: "file",
+        mimeType: "application/pdf",
+      },
+    ]);
+
+    render(<ChatInput onSend={onSend} />);
+
+    await waitFor(() => {
+      expect(mockOnDragDropEvent).toHaveBeenCalled();
+    });
+
+    const textbox = screen.getByRole("textbox");
+    const composer = textbox.closest("div.rounded-2xl");
+    if (!composer) {
+      throw new Error("Expected composer container");
+    }
+    vi.spyOn(composer, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 200,
+      width: 400,
+      height: 200,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect);
+    Object.defineProperty(document, "elementFromPoint", {
+      value: vi.fn(() => composer),
+      configurable: true,
+    });
+
+    tauriDragDropHandler?.({
+      payload: {
+        type: "drop",
+        paths: ["/Users/test/report.pdf"],
+        position: { x: 100, y: 100 },
+      },
+    });
+
+    expect(await screen.findByText("report.pdf")).toBeInTheDocument();
+
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: /send message/i }));
+
+    expect(onSend).toHaveBeenCalledWith(
+      "",
+      undefined,
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "file",
+          name: "report.pdf",
+          path: "/Users/test/report.pdf",
+          mimeType: "application/pdf",
+        }),
+      ]),
+    );
   });
 
   it("dedupes path attachments that differ only by case on case-insensitive platforms", async () => {

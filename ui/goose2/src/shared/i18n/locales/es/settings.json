@@ -71,8 +71,8 @@
         "saveError": "No se pudo guardar la configuración de compactación automática."
       },
       "builtIn": "Integrado",
-      "description": "Elige cuándo el agente Goose compacta el contexto anterior durante las sesiones. Esto se aplica a todos los chats de Goose.",
-      "label": "Goose (Agente)"
+      "description": "Elige cuándo el agente XingYun AI compacta el contexto anterior durante las sesiones. Esto se aplica a todos los chats de XingYun AI.",
+      "label": "XingYun AI (Agente)"
     },
     "title": "Compactación"
   },
@@ -82,7 +82,7 @@
   },
   "extensions": {
     "title": "Extensiones",
-    "description": "Conecta Goose con apps, servicios y capacidades integradas.",
+    "description": "Conecta XingYun AI con apps, servicios y capacidades integradas.",
     "search": "Buscar extensiones...",
     "empty": "No hay extensiones configuradas.",
     "noResults": "Ninguna extensión coincide con tu búsqueda.",
@@ -127,14 +127,14 @@
     },
     "categories": {
       "appsServices": "Apps y servicios",
-      "gooseCapabilities": "Capacidades de Goose"
+      "gooseCapabilities": "Capacidades de XingYun AI"
     },
     "sections": {
       "extensions": "Extensiones",
-      "gooseCapabilities": "Capacidades integradas de Goose"
+      "gooseCapabilities": "Capacidades integradas de XingYun AI"
     },
-    "showGooseCapabilities": "Mostrar {{count}} capacidades integradas de Goose",
-    "hideGooseCapabilities": "Ocultar capacidades integradas de Goose",
+    "showGooseCapabilities": "Mostrar {{count}} capacidades integradas de XingYun AI",
+    "hideGooseCapabilities": "Ocultar capacidades integradas de XingYun AI",
     "errors": {
       "saveFailed": "Error al guardar la extensión. Inténtalo de nuevo.",
       "deleteFailed": "Error al eliminar la extensión. Inténtalo de nuevo.",
@@ -155,17 +155,18 @@
   },
   "general": {
     "language": {
-      "description": "Elige cómo Goose formatea y muestra la interfaz.",
+      "description": "Elige cómo XingYun AI formatea y muestra la interfaz.",
       "english": "Inglés",
       "label": "Idioma",
       "spanish": "Español",
-      "system": "Predeterminado del sistema ({{language}})"
+      "system": "Predeterminado del sistema ({{language}})",
+      "chineseSimplified": "Chino simplificado"
     },
     "onboarding": {
-      "description": "Muestra la configuración otra vez la próxima vez que se abra Goose.",
+      "description": "Muestra la configuración otra vez la próxima vez que se abra XingYun AI.",
       "label": "Onboarding",
       "reset": "Restablecer onboarding",
-      "resetDescription": "El onboarding aparecerá la próxima vez que se abra Goose."
+      "resetDescription": "El onboarding aparecerá la próxima vez que se abra XingYun AI."
     },
     "title": "General",
     "voiceInput": {
@@ -221,7 +222,7 @@
     "doctor": "Diagnóstico",
     "general": "General",
     "projects": "Proyectos",
-    "providers": "Proveedores",
+    "providers": "Configuración",
     "voice": "Voz"
   },
   "projects": {
@@ -231,7 +232,7 @@
   },
   "providers": {
     "agents": {
-      "description": "Goose está integrado en tu espacio de trabajo. Instala otros para ampliar tu configuración.",
+      "description": "XingYun AI está integrado en tu espacio de trabajo. Instala otros para ampliar tu configuración.",
       "errors": {
         "installVerificationFailed": "La instalación terminó, pero no se encontró la CLI en PATH. Puede que tengas que reiniciar tu terminal."
       },
@@ -343,14 +344,14 @@
     },
     "disconnect": "Desconectar",
     "models": {
-      "description": "Necesitas al menos un proveedor de modelos para usar el agente Goose. Algunos agentes pueden traer sus propias conexiones de modelo.",
+      "description": "Necesitas al menos un proveedor de modelos para usar el agente XingYun AI. Algunos agentes pueden traer sus propias conexiones de modelo.",
       "notSet": "No configurado",
       "setup": {
         "connected": {
           "cloudCredentials": "Conectado mediante tus credenciales de nube.",
           "local": "Ejecutándose localmente.",
-          "oauthBrowser": "Conectado mediante el inicio de sesión de Goose.",
-          "oauthDeviceCode": "Conectado mediante el inicio de sesión por código de dispositivo de Goose."
+          "oauthBrowser": "Conectado mediante el inicio de sesión de XingYun AI.",
+          "oauthDeviceCode": "Conectado mediante el inicio de sesión por código de dispositivo de XingYun AI."
         },
         "fieldDescription": {
           "cloudCredentials": "Agrega los datos requeridos para usar este proveedor.",
@@ -358,13 +359,13 @@
           "hostWithOauthFallback": "Agrega los datos requeridos para usar este proveedor.",
           "singleApiKey": "Agrega tu clave API para usar este proveedor."
         },
-        "hostWithOauthFallbackTerminal": "Deja en blanco el token de acceso, guarda la URL del host y luego ejecuta `goose configure` en tu terminal para iniciar sesión.",
+        "hostWithOauthFallbackTerminal": "Deja en blanco el token de acceso, guarda la URL del host y termina el inicio de sesión desde tu terminal.",
         "nativeConnectDescription": "Inicia sesión con tu cuenta existente.",
         "pending": {
           "cloudCredentials": "Configura tus credenciales de nube en el entorno de tu terminal antes de usar este proveedor.",
           "local": "Este proveedor se ejecuta localmente y no necesita ajustes guardados.",
-          "oauthGuided": "Goose te guiará por el inicio de sesión.",
-          "oauthTerminal": "Ejecuta `goose configure` en tu terminal para terminar de iniciar sesión."
+          "oauthGuided": "XingYun AI te guiará por el inicio de sesión.",
+          "oauthTerminal": "Termina el inicio de sesión desde tu terminal."
         }
       },
       "checkingStatus": "Comprobando estado del proveedor...",
@@ -375,7 +376,7 @@
     "saved": "Guardado",
     "showFewer": "Mostrar menos",
     "showMore": "Mostrar {{count}} proveedores más",
-    "title": "Proveedores",
+    "title": "Configuración",
     "waitingForSignIn": "Esperando inicio de sesión..."
   },
   "title": "Configuración"

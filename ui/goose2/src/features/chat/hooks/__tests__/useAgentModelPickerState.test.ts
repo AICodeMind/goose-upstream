@@ -1,6 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useProviderCatalogStore } from "@/features/providers/stores/providerCatalogStore";
+import { useDistroStore } from "@/features/settings/stores/distroStore";
 import { useAgentModelPickerState } from "../useAgentModelPickerState";
 
 const mockUseProviderInventory = vi.fn();
@@ -13,6 +14,7 @@ describe("useAgentModelPickerState", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useProviderCatalogStore.getState().reset();
+    useDistroStore.setState({ loaded: false, manifest: { present: false } });
   });
 
   it("switches to goose when the current provider is goose-backed", () => {
@@ -353,9 +355,58 @@ describe("useAgentModelPickerState", () => {
     );
 
     expect(result.current.pickerAgents).toEqual([
-      { id: "goose", label: "Goose" },
+      { id: "goose", label: "星芸AI" },
       { id: "codex-acp", label: "Codex" },
       { id: "cursor-agent", label: "Cursor" },
+    ]);
+  });
+
+  it("filters non-goose agent providers when a distro allowlist is configured", () => {
+    useDistroStore.setState({
+      loaded: true,
+      manifest: { present: true, providerAllowlist: "xingyun" },
+    });
+    mockUseProviderInventory.mockReturnValue({
+      entries: new Map([
+        [
+          "cursor-agent",
+          {
+            providerId: "cursor-agent",
+            providerName: "Cursor",
+            category: "agent",
+            configured: true,
+            refreshing: false,
+            models: [],
+          },
+        ],
+      ]),
+      getEntry: (providerId: string) =>
+        providerId === "cursor-agent"
+          ? {
+              providerId: "cursor-agent",
+              providerName: "Cursor",
+              category: "agent",
+              configured: true,
+              refreshing: false,
+              models: [],
+            }
+          : undefined,
+      configuredModelProviderEntries: [],
+      getModelsForAgent: () => [],
+      loading: false,
+    });
+
+    const { result } = renderHook(() =>
+      useAgentModelPickerState({
+        providers: [{ id: "cursor-agent", label: "Cursor" }],
+        selectedProvider: "cursor-agent",
+        onProviderSelected: vi.fn(),
+      }),
+    );
+
+    expect(result.current.selectedAgentId).toBe("goose");
+    expect(result.current.pickerAgents).toEqual([
+      { id: "goose", label: "星芸AI" },
     ]);
   });
 });

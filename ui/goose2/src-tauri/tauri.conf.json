@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Goose",
+  "productName": "CodeMindX",
   "version": "0.1.0",
-  "identifier": "com.goose.app",
+  "identifier": "cn.xing-yun.ai",
   "build": {
     "beforeDevCommand": {
       "script": "exec ./node_modules/.bin/vite",
@@ -16,7 +16,7 @@
   "app": {
     "windows": [
       {
-        "title": "Goose",
+        "title": "CodeMindX",
         "width": 800,
         "height": 600,
         "minWidth": 608,
@@ -24,7 +24,7 @@
         "visible": false,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
-        "dragDropEnabled": false,
+        "dragDropEnabled": true,
         "trafficLightPosition": { "x": 12, "y": 22 }
       }
     ],

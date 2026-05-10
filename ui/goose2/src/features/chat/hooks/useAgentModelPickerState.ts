@@ -6,7 +6,12 @@ import {
   getCatalogEntryFromEntries,
   resolveAgentProviderCatalogIdStrictFromEntries,
 } from "@/features/providers/providerCatalog";
+import {
+  isProviderAllowedByAllowlist,
+  parseProviderAllowlist,
+} from "@/features/providers/distroProviderConstraints";
 import { useProviderCatalogStore } from "@/features/providers/stores/providerCatalogStore";
+import { useDistroStore } from "@/features/settings/stores/distroStore";
 import { resolveSelectedAgentId } from "../lib/agentProviderResolution";
 import type { ModelOption } from "../types";
 
@@ -19,6 +24,16 @@ interface UseAgentModelPickerStateOptions {
 
 const EMPTY_MODELS: ModelOption[] = [];
 
+function selectedAgentIdIsAllowed(
+  agentId: string,
+  providerAllowlist: Set<string> | null,
+) {
+  return (
+    agentId === "goose" ||
+    isProviderAllowedByAllowlist(agentId, providerAllowlist)
+  );
+}
+
 export function useAgentModelPickerState({
   providers,
   selectedProvider,
@@ -27,6 +42,11 @@ export function useAgentModelPickerState({
 }: UseAgentModelPickerStateOptions) {
   const catalogEntries = useProviderCatalogStore((state) => state.entries);
   const catalogLoaded = useProviderCatalogStore((state) => state.loaded);
+  const distro = useDistroStore((state) => state.manifest);
+  const providerAllowlist = useMemo(
+    () => parseProviderAllowlist(distro),
+    [distro],
+  );
   const {
     entries: providerInventoryEntries,
     getEntry: getProviderInventoryEntry,
@@ -35,7 +55,7 @@ export function useAgentModelPickerState({
     loading: providerInventoryLoading,
   } = useProviderInventory();
 
-  const selectedAgentId = useMemo(
+  const resolvedSelectedAgentId = useMemo(
     () =>
       resolveSelectedAgentId({
         catalogEntries,
@@ -50,6 +70,13 @@ export function useAgentModelPickerState({
       selectedProvider,
     ],
   );
+  const selectedAgentId = useMemo(
+    () =>
+      selectedAgentIdIsAllowed(resolvedSelectedAgentId, providerAllowlist)
+        ? resolvedSelectedAgentId
+        : "goose",
+    [providerAllowlist, resolvedSelectedAgentId],
+  );
   const selectedProviderInventory = getProviderInventoryEntry(selectedAgentId);
 
   const pickerAgents = useMemo(() => {
@@ -59,7 +86,7 @@ export function useAgentModelPickerState({
       id: "goose",
       label:
         getCatalogEntryFromEntries(catalogEntries, "goose")?.displayName ??
-        "Goose",
+        "星芸AI",
     });
 
     for (const provider of providers) {
@@ -73,6 +100,9 @@ export function useAgentModelPickerState({
           ? provider.id
           : null);
       if (!agentId || agentId === "goose") {
+        continue;
+      }
+      if (!isProviderAllowedByAllowlist(agentId, providerAllowlist)) {
         continue;
       }
 
@@ -103,6 +133,7 @@ export function useAgentModelPickerState({
     catalogEntries,
     catalogLoaded,
     providerInventoryEntries,
+    providerAllowlist,
     providers,
     selectedAgentId,
   ]);

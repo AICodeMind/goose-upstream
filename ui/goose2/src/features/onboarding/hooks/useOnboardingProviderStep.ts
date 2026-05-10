@@ -1,26 +1,18 @@
-import { useMemo, useState } from "react";
-import type { ProviderInventoryEntryDto } from "@aaif/goose-sdk";
+import { useState } from "react";
 import { useAgentStore } from "@/features/agents/stores/agentStore";
 import { setStoredModelPreference } from "@/features/chat/lib/modelPreferences";
-import {
-  getAgentProviders,
-  getModelProviders,
-} from "@/features/providers/providerCatalog";
-import { filterModelProvidersForDistro } from "@/features/providers/distroProviderConstraints";
 import { useCredentials } from "@/features/providers/hooks/useCredentials";
-import { useProviderInventoryStore } from "@/features/providers/stores/providerInventoryStore";
-import { useDistroStore } from "@/features/settings/stores/distroStore";
 import { saveDefaults } from "../api/onboarding";
-import {
-  firstUsableModel,
-  PROMOTED_MODEL_ORDER,
-} from "../lib/providerDefaults";
 import type {
   OnboardingReadiness,
   SelectedSetup,
   TFunctionLike,
-  UsableDefaultEntry,
 } from "../types";
+
+const XINGYUN_PROVIDER_ID = "xingyun";
+const XINGYUN_DEFAULT_MODEL_ID = "qwen3.6-plus";
+const XINGYUN_DEFAULT_MODEL_NAME = "qwen3.6-plus";
+const XINGYUN_API_KEY = "XINGYUN_API_KEY";
 
 interface UseOnboardingProviderStepParams {
   readiness: OnboardingReadiness;
@@ -36,14 +28,9 @@ export function useOnboardingProviderStep({
   onReady,
 }: UseOnboardingProviderStepParams) {
   const [providerError, setProviderError] = useState("");
-  const [showAllProviders, setShowAllProviders] = useState(false);
-  const [selectingProviderId, setSelectingProviderId] = useState<string | null>(
-    null,
-  );
-
-  const inventoryEntries = useProviderInventoryStore((state) => state.entries);
+  const [apiKey, setApiKey] = useState("");
+  const [savingApiKey, setSavingApiKey] = useState(false);
   const agentStore = useAgentStore();
-  const distro = useDistroStore((state) => state.manifest);
 
   const {
     configuredIds,
@@ -51,86 +38,64 @@ export function useOnboardingProviderStep({
     savingProviderIds,
     syncingProviderIds,
     inventoryWarnings,
-    getConfig,
     save,
-    remove,
-    completeNativeSetup,
   } = useCredentials();
 
-  const modelProviders = useMemo(() => {
-    const all = filterModelProvidersForDistro(getModelProviders(), distro);
-    return [...all].sort((a, b) => {
-      const aIndex = PROMOTED_MODEL_ORDER.indexOf(a.id);
-      const bIndex = PROMOTED_MODEL_ORDER.indexOf(b.id);
-      if (aIndex !== -1 || bIndex !== -1) {
-        return (aIndex === -1 ? 99 : aIndex) - (bIndex === -1 ? 99 : bIndex);
-      }
-      return a.displayName.localeCompare(b.displayName);
-    });
-  }, [distro]);
-
-  const visibleModelProviders = modelProviders.filter(
-    (provider) =>
-      showAllProviders ||
-      provider.group !== "additional" ||
-      configuredIds.has(provider.id) ||
-      inventoryEntries.get(provider.id)?.configured,
-  );
-
-  const usableModelEntries = useMemo(
-    () =>
-      [...inventoryEntries.values()]
-        .filter((entry) => entry.configured && firstUsableModel(entry))
-        .filter((entry) =>
-          modelProviders.some((provider) => provider.id === entry.providerId),
-        ),
-    [inventoryEntries, modelProviders],
-  );
-
-  const usableAgentEntries = useMemo(
-    () =>
-      [...inventoryEntries.values()].filter(
-        (entry) =>
-          entry.configured &&
-          entry.providerId !== "goose" &&
-          getAgentProviders().some(
-            (provider) => provider.id === entry.providerId,
-          ) &&
-          entry.models.length > 0,
-      ),
-    [inventoryEntries],
-  );
-
-  const usableDefaultEntries = useMemo<UsableDefaultEntry[]>(
-    () => [
-      ...usableModelEntries.map((entry) => ({
-        kind: "model" as const,
-        entry,
-      })),
-      ...usableAgentEntries.map((entry) => ({
-        kind: "agent" as const,
-        entry,
-      })),
-    ],
-    [usableAgentEntries, usableModelEntries],
-  );
-
-  async function selectModelProvider(entry: ProviderInventoryEntryDto) {
-    const model = firstUsableModel(entry);
-    if (!model) {
-      setProviderError(t("onboarding:provider.noModels"));
+  async function saveXingyunApiKey() {
+    const trimmedApiKey = apiKey.trim();
+    if (!trimmedApiKey) {
+      setProviderError(t("onboarding:provider.apiKeyRequired"));
       return;
     }
 
     setProviderError("");
-    setSelectingProviderId(entry.providerId);
+    setSavingApiKey(true);
     try {
-      await saveDefaults({ providerId: entry.providerId, modelId: model.id });
+      await save(XINGYUN_PROVIDER_ID, [
+        {
+          key: XINGYUN_API_KEY,
+          value: trimmedApiKey,
+          isSecret: true,
+        },
+      ]);
+      await saveDefaults({
+        providerId: XINGYUN_PROVIDER_ID,
+        modelId: XINGYUN_DEFAULT_MODEL_ID,
+      });
       const setup = {
-        providerId: entry.providerId,
-        modelId: model.id,
-        modelName: model.name,
+        providerId: XINGYUN_PROVIDER_ID,
+        modelId: XINGYUN_DEFAULT_MODEL_ID,
+        modelName: XINGYUN_DEFAULT_MODEL_NAME,
       };
+      setStoredModelPreference("goose", setup);
+      agentStore.setSelectedProvider("goose");
+      onSelectedSetup(setup);
+      onReady();
+    } catch (error) {
+      setProviderError(
+        error instanceof Error
+          ? error.message
+          : t("onboarding:provider.saveFailed"),
+      );
+    } finally {
+      setSavingApiKey(false);
+    }
+  }
+
+  async function continueWithCurrentDefault() {
+    const setup = {
+      providerId: XINGYUN_PROVIDER_ID,
+      modelId: XINGYUN_DEFAULT_MODEL_ID,
+      modelName: XINGYUN_DEFAULT_MODEL_NAME,
+    };
+
+    setProviderError("");
+    setSavingApiKey(true);
+    try {
+      await saveDefaults({
+        providerId: XINGYUN_PROVIDER_ID,
+        modelId: XINGYUN_DEFAULT_MODEL_ID,
+      });
       setStoredModelPreference("goose", setup);
       agentStore.setSelectedProvider("goose");
       onSelectedSetup(setup);
@@ -142,89 +107,22 @@ export function useOnboardingProviderStep({
           : t("onboarding:provider.selectFailed"),
       );
     } finally {
-      setSelectingProviderId(null);
-    }
-  }
-
-  function selectAgentProvider(entry: ProviderInventoryEntryDto) {
-    const model = firstUsableModel(entry);
-    agentStore.setSelectedProvider(entry.providerId);
-    onSelectedSetup({
-      providerId: entry.providerId,
-      modelId: model?.id,
-      modelName: model?.name,
-    });
-    onReady();
-  }
-
-  async function continueWithCurrentDefault() {
-    if (!readiness.isUsable || !readiness.providerId) {
-      return;
-    }
-
-    const setup = {
-      providerId: readiness.providerId,
-      modelId: readiness.modelId,
-      modelName: readiness.modelName,
-    };
-    const isAgentProvider = getAgentProviders().some(
-      (provider) => provider.id === readiness.providerId,
-    );
-
-    setProviderError("");
-    setSelectingProviderId(readiness.providerId);
-    try {
-      if (isAgentProvider) {
-        agentStore.setSelectedProvider(readiness.providerId);
-      } else {
-        if (!readiness.modelId || !readiness.modelName) {
-          setProviderError(t("onboarding:provider.noModels"));
-          return;
-        }
-        await saveDefaults({
-          providerId: readiness.providerId,
-          modelId: readiness.modelId,
-        });
-        setStoredModelPreference("goose", {
-          providerId: readiness.providerId,
-          modelId: readiness.modelId,
-          modelName: readiness.modelName,
-        });
-        agentStore.setSelectedProvider("goose");
-      }
-      onSelectedSetup(setup);
-      onReady();
-    } catch (error) {
-      setProviderError(
-        error instanceof Error
-          ? error.message
-          : t("onboarding:provider.selectFailed"),
-      );
-    } finally {
-      setSelectingProviderId(null);
+      setSavingApiKey(false);
     }
   }
 
   return {
+    apiKey,
+    isConfigured:
+      readiness.providerId === XINGYUN_PROVIDER_ID ||
+      configuredIds.has(XINGYUN_PROVIDER_ID),
     credentialLoading,
-    modelProviders: visibleModelProviders,
-    canBrowseAllProviders:
-      !showAllProviders && visibleModelProviders.length < modelProviders.length,
-    usableDefaultEntries,
-    configuredIds,
-    savingProviderIds,
-    syncingProviderIds,
-    inventoryWarnings,
-    selectingProviderId,
+    savingApiKey: savingApiKey || savingProviderIds.has(XINGYUN_PROVIDER_ID),
+    syncingApiKey: syncingProviderIds.has(XINGYUN_PROVIDER_ID),
+    inventoryWarning: inventoryWarnings.get(XINGYUN_PROVIDER_ID),
     providerError,
-    onGetConfig: getConfig,
-    onSave: save,
-    onRemove: remove,
-    onCompleteNativeSetup: completeNativeSetup,
-    onSelectModelProvider: (entry: ProviderInventoryEntryDto) =>
-      void selectModelProvider(entry),
-    onSelectAgentProvider: selectAgentProvider,
-    onBrowseAllProviders: () => setShowAllProviders(true),
+    onApiKeyChange: setApiKey,
+    onSaveApiKey: () => void saveXingyunApiKey(),
     onContinue: () => void continueWithCurrentDefault(),
   };
 }

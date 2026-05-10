@@ -138,7 +138,7 @@
     "chooseAssistant": "Elegir asistente",
     "create": "Crear agente...",
     "clearActive": "Quitar asistente activo",
-    "defaultDescription": "Sin agente seleccionado: chatea directamente con Goose"
+    "defaultDescription": "Sin agente seleccionado: chatea directamente con XingYun AI"
   },
   "skill": {
     "clearSelected": "Quitar habilidad {{skill}}"

@@ -3,9 +3,9 @@ import type { ProviderCatalogEntry } from "@/shared/types/providers";
 
 export const GOOSE_PROVIDER_CATALOG_ENTRY: ProviderCatalogEntry = {
   id: "goose",
-  displayName: "Goose",
+  displayName: "星芸AI",
   category: "agent",
-  description: "Block's open-source coding agent",
+  description: "星芸AI 内置智能体",
   setupMethod: "none",
   group: "default",
   aliases: ["goose"],

@@ -15,9 +15,20 @@ function normalizeSupportedLocale(locale?: string | null): AppLocale | null {
   if (!locale) return null;
 
   try {
-    const canonical = Intl.getCanonicalLocales(locale)[0]?.toLowerCase();
+    const canonical = Intl.getCanonicalLocales(locale)[0];
     if (!canonical) return null;
-    const base = canonical.split("-")[0];
+
+    const normalized = canonical.toLowerCase();
+    const exact = SUPPORTED_LOCALES.find(
+      (supported) => supported.toLowerCase() === normalized,
+    );
+    if (exact) return exact;
+
+    const [base, script] = normalized.split("-");
+    if (base === "zh" && (!script || script === "hans" || script === "cn")) {
+      return "zh-CN";
+    }
+
     return SUPPORTED_LOCALES.includes(base as AppLocale)
       ? (base as AppLocale)
       : null;
@@ -50,6 +61,18 @@ const localeResourceLoaders = {
     skills: () => import("./locales/es/skills.json"),
     sidebar: () => import("./locales/es/sidebar.json"),
     sessions: () => import("./locales/es/sessions.json"),
+  },
+  "zh-CN": {
+    agents: () => import("./locales/zh-CN/agents.json"),
+    common: () => import("./locales/zh-CN/common.json"),
+    chat: () => import("./locales/zh-CN/chat.json"),
+    home: () => import("./locales/zh-CN/home.json"),
+    onboarding: () => import("./locales/zh-CN/onboarding.json"),
+    projects: () => import("./locales/zh-CN/projects.json"),
+    settings: () => import("./locales/zh-CN/settings.json"),
+    skills: () => import("./locales/zh-CN/skills.json"),
+    sidebar: () => import("./locales/zh-CN/sidebar.json"),
+    sessions: () => import("./locales/zh-CN/sessions.json"),
   },
 } as const satisfies Record<
   AppLocale,

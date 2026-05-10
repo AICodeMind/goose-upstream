@@ -19,29 +19,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
-import type { Persona, ProviderType, Avatar } from "@/shared/types/agents";
+import type { Persona, Avatar } from "@/shared/types/agents";
 import type {
   CreatePersonaRequest,
   UpdatePersonaRequest,
 } from "@/shared/types/agents";
-import { discoverAcpProviders } from "@/shared/api/acp";
-import { useAgentStore } from "@/features/agents/stores/agentStore";
-import { useProviderInventory } from "@/features/providers/hooks/useProviderInventory";
-import { getProviderInventory } from "@/features/providers/api/inventory";
-import { useProviderInventoryStore } from "@/features/providers/stores/providerInventoryStore";
 import {
   getPersonaSource,
   isPersonaReadOnly,
 } from "@/features/agents/lib/personaPresentation";
 import { AvatarDropZone } from "./AvatarDropZone";
 import { PersonaDetails } from "./PersonaDetails";
+
+const XINGYUN_AGENT_PROVIDER = "goose";
+const XINGYUN_DEFAULT_MODEL = "qwen3.6-plus";
 
 interface PersonaEditorProps {
   persona?: Persona;
@@ -74,62 +65,20 @@ export function PersonaEditor({
   const personaSource = persona ? getPersonaSource(persona) : "custom";
   const canEditPersona = personaSource === "custom";
   const canDeletePersona = personaSource !== "builtin";
-  const acpProviders = useAgentStore((s) => s.providers);
-  const setProviders = useAgentStore((s) => s.setProviders);
-  const mergeInventoryEntries = useProviderInventoryStore(
-    (s) => s.mergeEntries,
-  );
-  const { getEntry, getModelsForProvider } = useProviderInventory();
 
   const [displayName, setDisplayName] = useState("");
   const [avatar, setAvatar] = useState<Avatar | null>(null);
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [provider, setProvider] = useState<ProviderType | "">("");
-  const [model, setModel] = useState("");
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    let cancelled = false;
-
-    const syncProviderOptions = async () => {
-      try {
-        const providers = await discoverAcpProviders();
-        if (!cancelled) {
-          setProviders(providers);
-        }
-      } catch {}
-
-      try {
-        const entries = await getProviderInventory();
-        if (!cancelled) {
-          mergeInventoryEntries(entries);
-        }
-      } catch {}
-    };
-
-    void syncProviderOptions();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isOpen, mergeInventoryEntries, setProviders]);
 
   useEffect(() => {
     if (isOpen && persona) {
       setDisplayName(persona.displayName);
       setAvatar(persona.avatar ?? null);
       setSystemPrompt(persona.systemPrompt);
-      setProvider(persona.provider ?? "");
-      setModel(persona.model ?? "");
     } else if (isOpen) {
       setDisplayName("");
       setAvatar(null);
       setSystemPrompt("");
-      setProvider("");
-      setModel("");
     }
   }, [isOpen, persona]);
 
@@ -137,27 +86,11 @@ export function PersonaEditor({
     displayName.trim().length > 0 && systemPrompt.trim().length > 0;
   const avatarSrc = useAvatarSrc(avatar);
 
-  const availableModels = provider ? getModelsForProvider(provider) : [];
-  const providerInventory = provider ? getEntry(provider) : undefined;
-  const modelStatusMessage =
-    providerInventory?.modelSelectionHint ??
-    providerInventory?.lastRefreshError;
-  const hasSavedModelOutsideInventory =
-    Boolean(model) && !availableModels.some((entry) => entry.id === model);
-  const modelSelectValue = hasSavedModelOutsideInventory
-    ? `__saved__:${model}`
-    : model || "__none__";
-
   const readOnlyDescription = readOnlyBySource
     ? personaSource === "builtin"
       ? t("editor.readOnlyBuiltIn")
       : t("editor.readOnlyFile")
     : null;
-  const providerLabel = provider
-    ? (acpProviders.find((providerOption) => providerOption.id === provider)
-        ?.label ?? provider)
-    : t("common:labels.none");
-  const modelLabel = model || t("common:labels.none");
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -168,21 +101,12 @@ export function PersonaEditor({
         displayName: displayName.trim(),
         avatar: avatar ?? undefined,
         systemPrompt: systemPrompt.trim(),
-        provider: provider || undefined,
-        model: model.trim() || undefined,
+        provider: XINGYUN_AGENT_PROVIDER,
+        model: XINGYUN_DEFAULT_MODEL,
       };
       onSave(data);
     },
-    [
-      isValid,
-      isReadOnly,
-      displayName,
-      avatar,
-      systemPrompt,
-      provider,
-      model,
-      onSave,
-    ],
+    [isValid, isReadOnly, displayName, avatar, systemPrompt, onSave],
   );
 
   const initials = displayName.charAt(0).toUpperCase() || "?";
@@ -212,9 +136,7 @@ export function PersonaEditor({
           <PersonaDetails
             avatar={avatar}
             displayName={displayName}
-            modelLabel={modelLabel}
             personaSource={personaSource}
-            providerLabel={providerLabel}
             systemPrompt={systemPrompt}
           />
         ) : (
@@ -283,112 +205,6 @@ export function PersonaEditor({
                   isReadOnly && "opacity-70 cursor-not-allowed",
                 )}
               />
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs font-medium text-muted-foreground">
-                {t("editor.provider")}
-              </Label>
-              <Select
-                value={provider || "__none__"}
-                onValueChange={(v: string) => {
-                  const nextProvider =
-                    v === "__none__"
-                      ? ("" as ProviderType | "")
-                      : (v as ProviderType);
-                  setProvider(nextProvider);
-                  if (nextProvider !== provider) {
-                    setModel("");
-                  }
-                }}
-                disabled={isReadOnly}
-              >
-                <SelectTrigger
-                  className={cn(
-                    "w-full",
-                    isReadOnly && "opacity-70 cursor-not-allowed",
-                  )}
-                >
-                  <SelectValue placeholder={t("common:labels.none")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">
-                    {t("common:labels.none")}
-                  </SelectItem>
-                  {acpProviders.map((providerOption) => (
-                    <SelectItem
-                      key={providerOption.id}
-                      value={providerOption.id}
-                    >
-                      {providerOption.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs font-medium text-muted-foreground">
-                {t("editor.model")}
-              </Label>
-              <Select
-                value={modelSelectValue}
-                onValueChange={(value: string) => {
-                  if (value === "__none__") {
-                    setModel("");
-                    return;
-                  }
-                  if (value.startsWith("__saved__:")) {
-                    setModel(value.slice("__saved__:".length));
-                    return;
-                  }
-                  setModel(value);
-                }}
-                disabled={isReadOnly || !provider}
-              >
-                <SelectTrigger
-                  className={cn(
-                    "w-full",
-                    isReadOnly && "opacity-70 cursor-not-allowed",
-                  )}
-                >
-                  <SelectValue
-                    placeholder={
-                      provider
-                        ? t("editor.modelPlaceholder")
-                        : t("editor.chooseProviderFirst")
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">
-                    {t("common:labels.none")}
-                  </SelectItem>
-                  {hasSavedModelOutsideInventory && (
-                    <SelectItem value={`__saved__:${model}`}>
-                      {t("editor.savedModelUnavailable", { model })}
-                    </SelectItem>
-                  )}
-                  {availableModels.map((modelOption) => (
-                    <SelectItem key={modelOption.id} value={modelOption.id}>
-                      {modelOption.displayName ?? modelOption.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {hasSavedModelOutsideInventory ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {t("editor.savedModelUnavailableHelp")}
-                </p>
-              ) : !provider ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {t("editor.chooseProviderFirst")}
-                </p>
-              ) : availableModels.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground">
-                  {modelStatusMessage ?? t("editor.noModelsAvailable")}
-                </p>
-              ) : null}
             </div>
           </form>
         )}

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/app-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       (() => {
@@ -50,7 +50,7 @@
 
         try {
           const root = document.documentElement;
-          const storedTheme = localStorage.getItem("goose-theme") || "system";
+          const storedTheme = localStorage.getItem("xingyun-theme") || "system";
           const resolvedTheme =
             storedTheme === "system"
               ? window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -58,10 +58,11 @@
                 : "light"
               : storedTheme;
           const accent =
-            normalizeHexColor(localStorage.getItem("goose-accent-color")) ||
+            normalizeHexColor(localStorage.getItem("xingyun-accent-color")) ||
             getDefaultAccent(resolvedTheme);
           const foreground = getContrastColor(accent);
-          const density = localStorage.getItem("goose-density") || "comfortable";
+          const density =
+            localStorage.getItem("xingyun-density") || "comfortable";
 
           root.classList.add(resolvedTheme === "dark" ? "dark" : "light");
           root.style.colorScheme = resolvedTheme === "dark" ? "dark" : "light";
@@ -78,7 +79,7 @@
         }
       })();
     </script>
-    <title>Goose</title>
+    <title>星芸AI</title>
   </head>
   <body>
     <div id="root"></div>

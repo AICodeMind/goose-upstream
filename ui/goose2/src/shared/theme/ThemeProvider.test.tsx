@@ -93,7 +93,7 @@ describe("ThemeProvider", () => {
       </ThemeProvider>,
     );
     await user.click(screen.getByText("Set Light"));
-    expect(localStorage.getItem("goose-theme")).toBe("light");
+    expect(localStorage.getItem("xingyun-theme")).toBe("light");
   });
 
   it("provides default accent color", () => {
@@ -118,7 +118,7 @@ describe("ThemeProvider", () => {
 
     await user.click(screen.getByText("Set Orange"));
 
-    expect(localStorage.getItem("goose-accent-color")).toBe("#f97316");
+    expect(localStorage.getItem("xingyun-accent-color")).toBe("#f97316");
     expect(document.documentElement.style.getPropertyValue("--brand")).toBe(
       "#f97316",
     );
@@ -148,7 +148,7 @@ describe("ThemeProvider", () => {
 
     await user.click(screen.getByText("Set White"));
 
-    expect(localStorage.getItem("goose-accent-color")).toBe("#ffffff");
+    expect(localStorage.getItem("xingyun-accent-color")).toBe("#ffffff");
     expect(
       document.documentElement.style.getPropertyValue("--color-brand"),
     ).toBe("#ffffff");
@@ -160,7 +160,7 @@ describe("ThemeProvider", () => {
 
     await user.click(screen.getByText("Set Invalid"));
 
-    expect(localStorage.getItem("goose-accent-color")).toBeNull();
+    expect(localStorage.getItem("xingyun-accent-color")).toBeNull();
     expect(screen.getByTestId("accent-preference")).toHaveTextContent(
       "default",
     );
@@ -180,7 +180,7 @@ describe("ThemeProvider", () => {
     await user.click(screen.getByText("Set Orange"));
     await user.click(screen.getByText("Reset Accent"));
 
-    expect(localStorage.getItem("goose-accent-color")).toBeNull();
+    expect(localStorage.getItem("xingyun-accent-color")).toBeNull();
     expect(screen.getByTestId("accent")).toHaveTextContent("#1a1a1a");
     expect(screen.getByTestId("accent-preference")).toHaveTextContent(
       "default",
@@ -212,7 +212,7 @@ describe("ThemeProvider", () => {
   });
 
   it("falls back to default accent color when storage is invalid", () => {
-    localStorage.setItem("goose-accent-color", "blue");
+    localStorage.setItem("xingyun-accent-color", "blue");
 
     render(
       <ThemeProvider>
@@ -245,7 +245,7 @@ describe("ThemeProvider", () => {
   });
 
   it("falls back to default theme when storage is invalid", () => {
-    localStorage.setItem("goose-theme", "sepia");
+    localStorage.setItem("xingyun-theme", "sepia");
 
     render(
       <ThemeProvider>
@@ -257,7 +257,7 @@ describe("ThemeProvider", () => {
   });
 
   it("reads persisted density", () => {
-    localStorage.setItem("goose-density", "compact");
+    localStorage.setItem("xingyun-density", "compact");
 
     render(
       <ThemeProvider>
@@ -286,7 +286,7 @@ describe("ThemeProvider", () => {
     await user.click(screen.getByText("Set Spacious"));
 
     expect(screen.getByTestId("density")).toHaveTextContent("spacious");
-    expect(localStorage.getItem("goose-density")).toBe("spacious");
+    expect(localStorage.getItem("xingyun-density")).toBe("spacious");
     expect(document.documentElement.dataset.density).toBe("spacious");
     expect(
       document.documentElement.style.getPropertyValue("--density-spacing"),
@@ -297,7 +297,7 @@ describe("ThemeProvider", () => {
   });
 
   it("falls back to comfortable density when storage is invalid", () => {
-    localStorage.setItem("goose-density", "tiny");
+    localStorage.setItem("xingyun-density", "tiny");
 
     render(
       <ThemeProvider>

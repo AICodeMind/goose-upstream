@@ -1,6 +1,6 @@
 {
-  "identifier": "com.goose.app.dev",
-  "productName": "Goose Dev",
+  "identifier": "cn.xing-yun.ai.dev",
+  "productName": "CodeMindX Dev",
   "bundle": {
     "externalBin": []
   }

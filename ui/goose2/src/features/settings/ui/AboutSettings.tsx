@@ -67,7 +67,7 @@ export function AboutSettings() {
         <div className="divide-y divide-border">
           <AboutInfoRow
             label={t("about.fields.name")}
-            value={appInfo?.name ?? "Goose"}
+            value={appInfo?.name ?? "CodeMindX"}
           />
           <AboutInfoRow
             label={t("about.fields.version")}
@@ -89,7 +89,6 @@ export function AboutSettings() {
             label={t("about.fields.identifier")}
             value={appInfo?.identifier ?? fallback}
           />
-          <AboutInfoRow label={t("about.fields.license")} value="Apache-2.0" />
         </div>
       </div>
     </SettingsPage>

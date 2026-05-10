@@ -1,10 +1,10 @@
 {
-  "windowTitle": "Goose setup",
+  "windowTitle": "XingYun AI setup",
   "eyebrow": "First run",
-  "title": "Set up Goose",
+  "title": "Set up XingYun AI",
   "steps": {
     "import": "Import",
-    "provider": "Provider",
+    "provider": "API Key",
     "tour": "Ready"
   },
   "counts": {
@@ -24,44 +24,50 @@
   },
   "import": {
     "title": "Bring your setup with you",
-    "description": "Goose can bring over existing settings and tools it finds before you start chatting.",
-    "scanning": "Looking for existing Goose settings and Claude Desktop tools...",
+    "description": "XingYun AI can bring over existing settings and tools it finds before you start chatting.",
+    "scanning": "Looking for existing XingYun AI settings and Claude Desktop tools...",
     "scanFailed": "Could not scan for existing setup.",
     "emptyTitle": "No previous setup found",
-    "emptyDescription": "You can still configure a provider and start fresh.",
+    "emptyDescription": "You can still set your XingYun API key and start fresh.",
     "failed": "Import failed.",
     "skip": "Skip import",
     "continue": "Import selected",
     "next": "Continue"
   },
   "provider": {
-    "title": "Choose a default",
-    "description": "Pick what Goose should use for new chats. Most people should choose an AI model service like ChatGPT, Anthropic, OpenAI, Google, or Ollama.",
-    "readyTitle": "Already connected",
-    "readyDescription": "Choose the default way Goose should start new chats. You can change this any time.",
-    "checking": "Checking provider status...",
-    "noneReady": "No usable provider is ready yet.",
-    "setupTitle": "Connect an AI model service",
-    "addDifferent": "Add a different provider",
-    "browseAll": "Show more",
-    "noModels": "This provider is configured, but no models are available yet.",
-    "selectFailed": "Could not select this provider.",
-    "useCurrent": "Keep current default"
+    "title": "Set up your XingYun API key",
+    "description": "XingYun AI connects only to the XingYun model service. Enter your API key to start using it.",
+    "readyTitle": "XingYun AI is connected",
+    "readyDescription": "A XingYun API key is already configured. XingYun AI will use the XingYun model service for new chats.",
+    "checking": "Checking key status...",
+    "xingyunName": "XingYun AI",
+    "fixedProviderDescription": "Only built-in model service · default model qwen3.6-plus",
+    "apiKeyLabel": "XingYun API key",
+    "apiKeyPlaceholder": "Enter your XingYun API key",
+    "apiKeyHelp": "Your key is saved securely in local credential storage and used for XingYun AI API requests.",
+    "apiKeyConfigured": "XingYun API key is saved.",
+    "apiKeyRequired": "Enter your XingYun API key.",
+    "saveFailed": "Could not save the XingYun API key.",
+    "selectFailed": "Could not save default model settings.",
+    "loadingModels": "Syncing available models...",
+    "modelRefreshWarning": "Models could not be refreshed yet: {{message}}",
+    "continue": "Continue",
+    "saveAndContinue": "Save and continue"
   },
   "tour": {
     "title": "Ready to go",
-    "description": "Goose is ready. Here is what is available now.",
-    "readyWithModel": "Goose will start with {{model}}. You can switch models from Home whenever you need.",
+    "description": "XingYun AI is ready. Here is what is available now.",
+    "readyWithModel": "XingYun AI will start with {{model}}. You can switch models from Home whenever you need.",
     "summary": {
       "defaultTitle": "Default",
       "defaultFallback": "Ready on Home",
-      "defaultDescription": "This is what Goose will use when you start a new chat.",
+      "defaultDescription": "This is what XingYun AI will use when you start a new chat.",
       "extensionsTitle": "Extensions",
       "extensionsDescription": "Connected tools are available in Settings. Imported Claude Desktop tools stay off until you enable them.",
       "skillsTitle": "Skills",
-      "skillsDescription": "Personal skills Goose can see now. Project skills appear when you open a project."
+      "skillsDescription": "Personal skills XingYun AI can see now. Project skills appear when you open a project."
     },
     "back": "Back",
-    "finish": "Start using Goose"
+    "finish": "Start using XingYun AI"
   }
 }

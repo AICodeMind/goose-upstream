@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
   <key>NSMicrophoneUsageDescription</key>
-  <string>Goose uses your microphone to capture voice input for dictation.</string>
+  <string>星芸AI uses your microphone to capture voice input for dictation.</string>
 </dict>
 </plist>

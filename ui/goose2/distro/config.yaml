@@ -1,0 +1,11 @@
+GOOSE_PROVIDER: xingyun
+GOOSE_MODEL: qwen3.6-plus
+GOOSE_TELEMETRY_ENABLED: false
+extensions:
+  web_search:
+    enabled: true
+    type: platform
+    name: web_search
+    display_name: Web Search
+    description: Search the web with DuckDuckGo without requiring an API key
+    bundled: true

@@ -14,18 +14,14 @@ import type { PersonaSource } from "@/features/agents/lib/personaPresentation";
 interface PersonaDetailsProps {
   avatar: Avatar | null;
   displayName: string;
-  modelLabel: string;
   personaSource: PersonaSource;
-  providerLabel: string;
   systemPrompt: string;
 }
 
 export function PersonaDetails({
   avatar,
   displayName,
-  modelLabel,
   personaSource,
-  providerLabel,
   systemPrompt,
 }: PersonaDetailsProps) {
   const { t } = useTranslation(["agents", "common"]);
@@ -64,25 +60,6 @@ export function PersonaDetails({
                 ) : null}
               </div>
             </div>
-          </div>
-        </section>
-
-        <section className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-border bg-background p-4">
-            <DetailField
-              label={t("editor.provider")}
-              contentClassName="font-medium"
-            >
-              {providerLabel}
-            </DetailField>
-          </div>
-          <div className="rounded-xl border border-border bg-background p-4">
-            <DetailField
-              label={t("editor.model")}
-              contentClassName="font-medium"
-            >
-              {modelLabel}
-            </DetailField>
           </div>
         </section>
 

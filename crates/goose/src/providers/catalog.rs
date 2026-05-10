@@ -221,14 +221,21 @@ const API_KEY_FIELD: CuratedFieldMetadata = CuratedFieldMetadata {
     default_value: None,
 };
 
+const XINGYUN_API_KEY_FIELD: CuratedFieldMetadata = CuratedFieldMetadata {
+    key: "",
+    label: "星芸 API Key",
+    placeholder: Some("输入星芸 API Key"),
+    default_value: None,
+};
+
 const SETUP_METADATA: &[CuratedSetupMetadata] = &[
     CuratedSetupMetadata {
         provider_id: "goose",
         category: ProviderSetupCategory::Agent,
         setup_method: ProviderSetupMethod::None,
         group: ProviderSetupGroup::Default,
-        display_name: Some("Goose"),
-        description: Some("Block's open-source coding agent"),
+        display_name: Some("星芸AI"),
+        description: Some("星芸AI 内置智能体"),
         docs_url: None,
         aliases: &["goose"],
         native_connect_query: None,
@@ -356,6 +363,23 @@ const SETUP_METADATA: &[CuratedSetupMetadata] = &[
         show_only_when_installed: false,
         synthetic: false,
         secret_field_default: Some(API_KEY_FIELD),
+        field_overrides: &[],
+    },
+    CuratedSetupMetadata {
+        provider_id: "xingyun",
+        category: ProviderSetupCategory::Model,
+        setup_method: ProviderSetupMethod::SingleApiKey,
+        group: ProviderSetupGroup::Default,
+        display_name: Some("星芸AI"),
+        description: Some("XingYun AI OpenAI-compatible Chat Completions API"),
+        docs_url: Some("https://aiapi.xing-yun.cn/console/token"),
+        aliases: &[],
+        native_connect_query: None,
+        binary_name: None,
+        setup_capabilities: setup_capabilities(false, false, false),
+        show_only_when_installed: false,
+        synthetic: false,
+        secret_field_default: Some(XINGYUN_API_KEY_FIELD),
         field_overrides: &[],
     },
     CuratedSetupMetadata {
@@ -1076,6 +1100,18 @@ mod tests {
             ollama.fields[0].default_value.as_deref(),
             Some("http://localhost:11434")
         );
+
+        let xingyun = entries
+            .iter()
+            .find(|entry| entry.provider_id == "xingyun")
+            .expect("setup catalog should include xingyun");
+        assert_eq!(xingyun.category, ProviderSetupCategory::Model);
+        assert_eq!(xingyun.setup_method, ProviderSetupMethod::SingleApiKey);
+        assert_eq!(xingyun.fields.len(), 1);
+        assert_eq!(xingyun.fields[0].key, "XINGYUN_API_KEY");
+        assert_eq!(xingyun.fields[0].label, "星芸 API Key");
+        assert!(xingyun.fields[0].secret);
+        assert!(xingyun.fields[0].required);
 
         let databricks = entries
             .iter()

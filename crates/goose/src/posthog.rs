@@ -19,34 +19,14 @@ const POSTHOG_CAPTURE_URL: &str = "https://us.i.posthog.com/capture/";
 /// Config key for telemetry opt-out preference
 pub const TELEMETRY_ENABLED_KEY: &str = "GOOSE_TELEMETRY_ENABLED";
 
-static TELEMETRY_DISABLED_BY_ENV: Lazy<AtomicBool> = Lazy::new(|| {
-    std::env::var("GOOSE_TELEMETRY_OFF")
-        .map(|v| v == "1" || v.to_lowercase() == "true")
-        .unwrap_or(false)
-        .into()
-});
-
-/// Check if the user has made a telemetry choice.
-///
-/// Returns Some(true) if telemetry is enabled, Some(false) if disabled,
-/// or None if the user hasn't made a choice yet.
+/// Check if telemetry is disabled for this distribution.
 pub fn get_telemetry_choice() -> Option<bool> {
-    if TELEMETRY_DISABLED_BY_ENV.load(Ordering::Relaxed) {
-        return Some(false);
-    }
-
-    let config = Config::global();
-    config.get_param::<bool>(TELEMETRY_ENABLED_KEY).ok()
+    Some(false)
 }
 
 /// Check if telemetry is enabled.
 ///
-/// Returns false if:
-/// - GOOSE_TELEMETRY_OFF environment variable is set to "1" or "true"
-/// - GOOSE_TELEMETRY_ENABLED config value is set to false
-/// - User has not made a telemetry choice yet (opt-in required)
-///
-/// Returns true only if the user has explicitly opted in.
+/// Returns false for this distribution.
 pub fn is_telemetry_enabled() -> bool {
     get_telemetry_choice().unwrap_or(false)
 }

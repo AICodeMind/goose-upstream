@@ -290,7 +290,9 @@ export function Sidebar({
               collapsed ? "justify-center" : "justify-between",
             )}
           >
-            <GooseIcon className="text-foreground" />
+            <span className="flex size-7 shrink-0 items-center justify-center p-0.5">
+              <GooseIcon className="size-full" />
+            </span>
             {!collapsed && (
               <Button
                 type="button"

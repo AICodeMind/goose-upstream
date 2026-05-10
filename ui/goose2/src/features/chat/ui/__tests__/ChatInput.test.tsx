@@ -146,7 +146,7 @@ describe("ChatInput", () => {
         currentModelId="gpt-4o"
         currentModel="GPT-4o"
         availableModels={[{ id: "gpt-4o", name: "GPT-4o" }]}
-        providers={[{ id: "goose", label: "Goose" }]}
+        providers={[{ id: "goose", label: "星芸AI" }]}
       />,
     );
     expect(
@@ -164,7 +164,7 @@ describe("ChatInput", () => {
     );
     expect(
       screen.getByRole("button", { name: /choose agent and model/i }),
-    ).toHaveTextContent("Goose");
+    ).toHaveTextContent("星芸AI");
   });
 
   it("shows provider label while the current model id is unresolved", () => {
@@ -191,14 +191,14 @@ describe("ChatInput", () => {
     render(
       <ChatInput
         onSend={vi.fn()}
-        providers={[{ id: "goose", label: "Goose" }]}
+        providers={[{ id: "goose", label: "星芸AI" }]}
         selectedProvider="goose"
       />,
     );
     const providerButton = screen.getByRole("button", {
       name: /choose agent and model/i,
     });
-    expect(providerButton).toHaveTextContent("Goose");
+    expect(providerButton).toHaveTextContent("星芸AI");
   });
 
   it("resets the textarea when initialValue changes", () => {

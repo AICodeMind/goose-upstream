@@ -18,7 +18,7 @@ function formatDebugReport(report: DoctorReport): string {
   };
 
   const lines: string[] = [
-    "Goose Doctor Report",
+    "XingYun AI Doctor Report",
     `Date: ${new Date().toISOString()}`,
     "=".repeat(60),
   ];

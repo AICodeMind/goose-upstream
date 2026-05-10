@@ -17,7 +17,7 @@ pub async fn authenticate_model_provider(
     provider_label: String,
 ) -> Result<(), String> {
     if cfg!(target_os = "windows") {
-        return Err("Native Goose sign-in is not supported on Windows yet".to_string());
+        return Err("Native XingYun AI sign-in is not supported on Windows yet".to_string());
     }
 
     let goose_command = get_goose_command(&app_handle)?;
@@ -128,7 +128,7 @@ async fn run_shell_command(
         "model-setup:output",
         ModelSetupOutput {
             provider_id: provider_id.to_string(),
-            line: "Starting Goose sign-in...".to_string(),
+            line: "Starting XingYun AI sign-in...".to_string(),
         },
     );
 
@@ -214,6 +214,6 @@ async fn run_shell_command(
         Ok(())
     } else {
         let code = status.code().unwrap_or(-1);
-        Err(format!("Goose sign-in exited with code {code}"))
+        Err(format!("XingYun AI sign-in exited with code {code}"))
     }
 }

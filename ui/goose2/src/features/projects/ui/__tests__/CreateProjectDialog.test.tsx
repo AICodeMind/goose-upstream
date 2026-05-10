@@ -2,24 +2,15 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { open } from "@tauri-apps/plugin-dialog";
-import { readProjectIcon, type ProjectInfo } from "../../api/projects";
+import {
+  createProject,
+  readProjectIcon,
+  updateProject,
+  type ProjectInfo,
+} from "../../api/projects";
 import { CreateProjectDialog } from "../CreateProjectDialog";
 
-// ── ResizeObserver polyfill (needed by Radix Select in jsdom) ────────
-
-class ResizeObserverStub {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-globalThis.ResizeObserver ??=
-  ResizeObserverStub as unknown as typeof ResizeObserver;
-
 // ── Mocks ────────────────────────────────────────────────────────────
-
-vi.mock("@/shared/api/acp", () => ({
-  discoverAcpProviders: vi.fn().mockResolvedValue([]),
-}));
 
 vi.mock("@/shared/api/system", () => ({
   getHomeDir: vi.fn().mockResolvedValue("/home/user"),
@@ -438,6 +429,57 @@ describe("CreateProjectDialog", () => {
   // ── Create mode (no editingProject) ──────────────────────────────────
 
   describe("create mode", () => {
+    it("does not show provider selection and creates with the fixed XingYun agent provider", async () => {
+      const user = userEvent.setup();
+
+      render(<CreateProjectDialog {...defaultProps} isOpen={true} />);
+
+      expect(screen.queryByText("Provider")).not.toBeInTheDocument();
+      expect(screen.queryByText("None (use default)")).not.toBeInTheDocument();
+
+      await user.type(screen.getByPlaceholderText("My Project"), "Fixed");
+      await user.click(screen.getByRole("button", { name: "Create project" }));
+
+      expect(createProject).toHaveBeenCalledWith(
+        "Fixed",
+        "",
+        "",
+        "tabler:folder-code",
+        "#64748b",
+        "goose",
+        null,
+        [],
+        false,
+      );
+    });
+
+    it("overwrites existing project provider with the fixed XingYun agent provider", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <CreateProjectDialog
+          {...defaultProps}
+          isOpen={true}
+          editingProject={makeEditingProject({
+            preferredProvider: "anthropic",
+            preferredModel: "claude-sonnet-4-5",
+          })}
+        />,
+      );
+
+      expect(screen.queryByText("Provider")).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "Save changes" }));
+
+      expect(updateProject).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          preferredProvider: "goose",
+          preferredModel: null,
+        }),
+      );
+    });
+
     it("uses initialWorkingDir to derive project name", () => {
       render(
         <CreateProjectDialog
