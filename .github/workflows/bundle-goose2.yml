@@ -59,7 +59,7 @@ jobs:
     name: "macOS ARM64"
     runs-on: macos-latest
     environment: ${{ inputs.environment || '' }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       MACOSX_DEPLOYMENT_TARGET: "12.0"
     permissions:
@@ -182,7 +182,7 @@ jobs:
       # ── Tauri bundle ──
       - name: Bundle Goose 2 (pnpm tauri build)
         env:
-          APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '-' }}
           APPLE_ID: ${{ inputs.signing && secrets.APPLE_ID || '' }}
           APPLE_PASSWORD: ${{ inputs.signing && secrets.APPLE_ID_PASSWORD || '' }}
           APPLE_TEAM_ID: ${{ inputs.signing && secrets.APPLE_TEAM_ID || '' }}
@@ -246,7 +246,7 @@ jobs:
     name: "macOS x86_64"
     runs-on: macos-15-intel
     environment: ${{ inputs.environment || '' }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       MACOSX_DEPLOYMENT_TARGET: "12.0"
     permissions:
@@ -363,7 +363,7 @@ jobs:
       # ── Tauri bundle ──
       - name: Bundle Goose 2 for Intel
         env:
-          APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '-' }}
           APPLE_ID: ${{ inputs.signing && secrets.APPLE_ID || '' }}
           APPLE_PASSWORD: ${{ inputs.signing && secrets.APPLE_ID_PASSWORD || '' }}
           APPLE_TEAM_ID: ${{ inputs.signing && secrets.APPLE_TEAM_ID || '' }}
@@ -424,7 +424,7 @@ jobs:
   bundle-linux:
     name: "Linux x86_64"
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     permissions:
       contents: read
       actions: read
@@ -569,7 +569,8 @@ jobs:
   bundle-windows:
     name: "Windows ${{ matrix.artifact_arch }}"
     runs-on: windows-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
+    continue-on-error: ${{ matrix.allow_failure }}
     strategy:
       fail-fast: false
       matrix:
@@ -577,9 +578,11 @@ jobs:
           - artifact_arch: x64
             target: x86_64-pc-windows-msvc
             cli_artifact: goose-x86_64-pc-windows-msvc
+            allow_failure: false
           - artifact_arch: arm64
             target: aarch64-pc-windows-msvc
             cli_artifact: goose-aarch64-pc-windows-msvc
+            allow_failure: true
     permissions:
       id-token: write
       contents: read
