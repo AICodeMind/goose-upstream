@@ -51,6 +51,11 @@
     "selectFailed": "无法保存默认模型设置。",
     "loadingModels": "正在同步可用模型...",
     "modelRefreshWarning": "模型列表暂时无法刷新：{{message}}",
+    "getKeyIntro": "还没有 API Key？",
+    "getKeyLink": "前往星芸控制台创建令牌",
+    "groupHintIntro": "创建令牌时，请按你想使用的模型选择对应分组（应用针对两个分组都做了专门优化）：",
+    "groupCodeMind": "主要面向海外模型，使用海外服务商时建议选择此分组。",
+    "groupCodeMindChina": "主要面向国内模型，使用国内服务商时建议选择此分组。",
     "continue": "继续",
     "saveAndContinue": "保存并继续"
   },

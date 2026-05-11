@@ -1,4 +1,5 @@
 import { acpPrepareSession, acpSetModel } from "@/shared/api/acp";
+import { markPendingModelUpdate } from "@/shared/api/acpNotificationHandler";
 
 export interface SessionConfigRequest {
   sessionId: string;
@@ -153,6 +154,10 @@ export function applyLatestSessionConfig(
   queue.nextSequence = sequence;
   const queuedRequest = { ...request, sequence };
   queue.latest = queuedRequest;
+
+  if (request.modelId) {
+    markPendingModelUpdate(request.sessionId, request.modelId);
+  }
 
   const result = new Promise<SessionConfigResult>((resolve, reject) => {
     queue.waiters.push({

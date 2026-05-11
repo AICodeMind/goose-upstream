@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { useAgentStore } from "@/features/agents/stores/agentStore";
 import { setStoredModelPreference } from "@/features/chat/lib/modelPreferences";
 import { useCredentials } from "@/features/providers/hooks/useCredentials";
@@ -13,6 +14,7 @@ const XINGYUN_PROVIDER_ID = "xingyun";
 const XINGYUN_DEFAULT_MODEL_ID = "qwen3.6-plus";
 const XINGYUN_DEFAULT_MODEL_NAME = "qwen3.6-plus";
 const XINGYUN_API_KEY = "XINGYUN_API_KEY";
+const XINGYUN_API_KEY_URL = "https://aiapi.xing-yun.cn/console/token";
 
 interface UseOnboardingProviderStepParams {
   readiness: OnboardingReadiness;
@@ -124,5 +126,8 @@ export function useOnboardingProviderStep({
     onApiKeyChange: setApiKey,
     onSaveApiKey: () => void saveXingyunApiKey(),
     onContinue: () => void continueWithCurrentDefault(),
+    onOpenApiKeyConsole: () => {
+      void openUrl(XINGYUN_API_KEY_URL);
+    },
   };
 }

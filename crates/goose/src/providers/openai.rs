@@ -699,18 +699,20 @@ impl Provider for OpenAiProvider {
             let response = self
                 .with_retry(|| async {
                     let payload_clone = payload.clone();
-                    let resp = self
-                        .api_client
-                        .response_post(
-                            Some(session_id),
-                            &Self::map_base_path(
-                                &self.base_path,
-                                "responses",
-                                OPEN_AI_DEFAULT_RESPONSES_PATH,
-                            ),
-                            &payload_clone,
-                        )
-                        .await?;
+                    let path = Self::map_base_path(
+                        &self.base_path,
+                        "responses",
+                        OPEN_AI_DEFAULT_RESPONSES_PATH,
+                    );
+                    let resp = if self.supports_streaming {
+                        self.api_client
+                            .response_post_uncompressed(Some(session_id), &path, &payload_clone)
+                            .await?
+                    } else {
+                        self.api_client
+                            .response_post(Some(session_id), &path, &payload_clone)
+                            .await?
+                    };
                     handle_status(resp).await
                 })
                 .await
@@ -772,10 +774,15 @@ impl Provider for OpenAiProvider {
 
             let response = self
                 .with_retry(|| async {
-                    let resp = self
-                        .api_client
-                        .response_post(Some(session_id), &self.base_path, &payload)
-                        .await?;
+                    let resp = if self.supports_streaming {
+                        self.api_client
+                            .response_post_uncompressed(Some(session_id), &self.base_path, &payload)
+                            .await?
+                    } else {
+                        self.api_client
+                            .response_post(Some(session_id), &self.base_path, &payload)
+                            .await?
+                    };
                     handle_status(resp).await
                 })
                 .await

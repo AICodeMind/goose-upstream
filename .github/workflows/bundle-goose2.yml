@@ -50,6 +50,27 @@ on:
         required: false
         default: ""
         type: string
+      build-macos:
+        description: "Whether to build macOS artifacts"
+        required: false
+        default: true
+        type: boolean
+      build-linux:
+        description: "Whether to build Linux artifacts"
+        required: false
+        default: true
+        type: boolean
+      build-windows:
+        description: "Whether to build Windows artifacts"
+        required: false
+        default: true
+        type: boolean
+      windows-targets:
+        description: "Windows target matrix JSON"
+        required: false
+        default: >-
+          [{"artifact_arch":"x64","target":"x86_64-pc-windows-msvc","cli_artifact":"goose-x86_64-pc-windows-msvc","allow_failure":false},{"artifact_arch":"arm64","target":"aarch64-pc-windows-msvc","cli_artifact":"goose-aarch64-pc-windows-msvc","allow_failure":true}]
+        type: string
 
 jobs:
   # ───────────────────────────────────────────────
@@ -57,9 +78,10 @@ jobs:
   # ───────────────────────────────────────────────
   bundle-macos-arm:
     name: "macOS ARM64"
+    if: inputs.build-macos
     runs-on: macos-latest
     environment: ${{ inputs.environment || '' }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       MACOSX_DEPLOYMENT_TARGET: "12.0"
     permissions:
@@ -180,9 +202,20 @@ jobs:
           certificate-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
 
       # ── Tauri bundle ──
-      - name: Bundle Goose 2 (pnpm tauri build)
+      - name: Bundle Goose 2 unsigned
+        if: ${{ !inputs.signing }}
         env:
-          APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '' }}
+          CI: "true"
+        working-directory: ui/goose2
+        run: |
+          source ../../bin/activate-hermit
+          pnpm tauri build
+
+      - name: Bundle Goose 2 signed
+        if: inputs.signing
+        env:
+          CI: "true"
+          APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '-' }}
           APPLE_ID: ${{ inputs.signing && secrets.APPLE_ID || '' }}
           APPLE_PASSWORD: ${{ inputs.signing && secrets.APPLE_ID_PASSWORD || '' }}
           APPLE_TEAM_ID: ${{ inputs.signing && secrets.APPLE_TEAM_ID || '' }}
@@ -230,23 +263,25 @@ jobs:
           open -g "$APP_PATH"
           sleep 5
 
-          if pgrep -f "Goose.app/Contents/MacOS" > /dev/null; then
+          APP_NAME="$(basename "$APP_PATH")"
+          if pgrep -f "${APP_NAME}/Contents/MacOS" > /dev/null; then
             echo "✅ App is running"
           else
             echo "❌ App did not stay open"
             exit 1
           fi
 
-          pkill -f "Goose.app/Contents/MacOS" || true
+          pkill -f "${APP_NAME}/Contents/MacOS" || true
 
   # ───────────────────────────────────────────────
   # macOS Intel (x86_64)
   # ───────────────────────────────────────────────
   bundle-macos-intel:
     name: "macOS x86_64"
+    if: inputs.build-macos
     runs-on: macos-15-intel
     environment: ${{ inputs.environment || '' }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       MACOSX_DEPLOYMENT_TARGET: "12.0"
     permissions:
@@ -361,9 +396,20 @@ jobs:
           certificate-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
 
       # ── Tauri bundle ──
-      - name: Bundle Goose 2 for Intel
+      - name: Bundle Goose 2 for Intel unsigned
+        if: ${{ !inputs.signing }}
         env:
-          APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '' }}
+          CI: "true"
+        working-directory: ui/goose2
+        run: |
+          source ../../bin/activate-hermit
+          pnpm tauri build --target x86_64-apple-darwin
+
+      - name: Bundle Goose 2 for Intel signed
+        if: inputs.signing
+        env:
+          CI: "true"
+          APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '-' }}
           APPLE_ID: ${{ inputs.signing && secrets.APPLE_ID || '' }}
           APPLE_PASSWORD: ${{ inputs.signing && secrets.APPLE_ID_PASSWORD || '' }}
           APPLE_TEAM_ID: ${{ inputs.signing && secrets.APPLE_TEAM_ID || '' }}
@@ -409,22 +455,24 @@ jobs:
           open -g "$APP_PATH"
           sleep 5
 
-          if pgrep -f "Goose.app/Contents/MacOS" > /dev/null; then
+          APP_NAME="$(basename "$APP_PATH")"
+          if pgrep -f "${APP_NAME}/Contents/MacOS" > /dev/null; then
             echo "✅ App is running"
           else
             echo "❌ App did not stay open"
             exit 1
           fi
 
-          pkill -f "Goose.app/Contents/MacOS" || true
+          pkill -f "${APP_NAME}/Contents/MacOS" || true
 
   # ───────────────────────────────────────────────
   # Linux x86_64
   # ───────────────────────────────────────────────
   bundle-linux:
     name: "Linux x86_64"
+    if: inputs.build-linux
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     permissions:
       contents: read
       actions: read
@@ -433,6 +481,17 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.ref != '' && inputs.ref || '' }}
+
+      - name: Free runner disk space
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -af || true
+          sudo apt-get clean
+          df -h
 
       - name: Install system dependencies
         run: |
@@ -501,6 +560,16 @@ jobs:
           cp target/release/goose "target/release/goose-${TRIPLE}"
           ls -lh "target/release/goose-${TRIPLE}"
 
+      - name: Free Rust build intermediates
+        if: inputs.cli-run-id == ''
+        run: |
+          find target/release -mindepth 1 -maxdepth 1 \
+            ! -name goose \
+            ! -name 'goose-*' \
+            -exec rm -rf {} +
+          rm -rf target/debug
+          df -h
+
       # ── Frontend ──
       - name: Cache pnpm dependencies
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
@@ -568,18 +637,14 @@ jobs:
   # ───────────────────────────────────────────────
   bundle-windows:
     name: "Windows ${{ matrix.artifact_arch }}"
+    if: inputs.build-windows
     runs-on: windows-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
+    continue-on-error: ${{ matrix.allow_failure }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - artifact_arch: x64
-            target: x86_64-pc-windows-msvc
-            cli_artifact: goose-x86_64-pc-windows-msvc
-          - artifact_arch: arm64
-            target: aarch64-pc-windows-msvc
-            cli_artifact: goose-aarch64-pc-windows-msvc
+        include: ${{ fromJSON(inputs.windows-targets) }}
     permissions:
       id-token: write
       contents: read
@@ -719,7 +784,7 @@ jobs:
   sign-windows:
     name: "Sign Windows installers"
     needs: bundle-windows
-    if: inputs.windows-signing
+    if: inputs.build-windows && inputs.windows-signing
     runs-on: windows-latest
     environment: signing
     permissions:

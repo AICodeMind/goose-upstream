@@ -2,7 +2,7 @@ use crate::session_context::SESSION_ID_HEADER;
 use anyhow::Result;
 use async_trait::async_trait;
 use reqwest::{
-    header::{HeaderMap, HeaderName, HeaderValue},
+    header::{HeaderMap, HeaderName, HeaderValue, ACCEPT_ENCODING},
     Certificate, Client, Identity, Response, StatusCode,
 };
 use serde_json::Value;
@@ -13,6 +13,7 @@ use std::time::Duration;
 
 pub struct ApiClient {
     client: Client,
+    streaming_client: Client,
     host: String,
     auth: AuthMethod,
     default_headers: HeaderMap,
@@ -282,18 +283,14 @@ impl ApiClient {
     }
 
     pub fn with_timeout(host: String, auth: AuthMethod, timeout: Duration) -> Result<Self> {
-        let mut client_builder = Client::builder().timeout(timeout);
-
         // Configure TLS if needed
         let tls_config = TlsConfig::from_config()?;
-        if let Some(ref config) = tls_config {
-            client_builder = Self::configure_tls(client_builder, config)?;
-        }
-
-        let client = client_builder.build()?;
+        let client = Self::build_client(timeout, None, tls_config.as_ref(), false)?;
+        let streaming_client = Self::build_client(timeout, None, tls_config.as_ref(), true)?;
 
         Ok(Self {
             client,
+            streaming_client,
             host,
             auth,
             default_headers: HeaderMap::new(),
@@ -304,17 +301,44 @@ impl ApiClient {
     }
 
     fn rebuild_client(&mut self) -> Result<()> {
-        let mut client_builder = Client::builder()
-            .timeout(self.timeout)
-            .default_headers(self.default_headers.clone());
-
         // Configure TLS if needed
-        if let Some(ref tls_config) = self.tls_config {
+        self.client = Self::build_client(
+            self.timeout,
+            Some(self.default_headers.clone()),
+            self.tls_config.as_ref(),
+            false,
+        )?;
+        self.streaming_client = Self::build_client(
+            self.timeout,
+            Some(self.default_headers.clone()),
+            self.tls_config.as_ref(),
+            true,
+        )?;
+        Ok(())
+    }
+
+    fn build_client(
+        timeout: Duration,
+        default_headers: Option<HeaderMap>,
+        tls_config: Option<&TlsConfig>,
+        streaming: bool,
+    ) -> Result<Client> {
+        let mut client_builder = Client::builder().timeout(timeout);
+        if let Some(headers) = default_headers {
+            client_builder = client_builder.default_headers(headers);
+        }
+        if streaming {
+            client_builder = client_builder
+                .no_gzip()
+                .no_brotli()
+                .no_deflate()
+                .no_zstd()
+                .http1_only();
+        }
+        if let Some(tls_config) = tls_config {
             client_builder = Self::configure_tls(client_builder, tls_config)?;
         }
-
-        self.client = client_builder.build()?;
-        Ok(())
+        Ok(client_builder.build()?)
     }
 
     /// Configure TLS settings on a reqwest ClientBuilder
@@ -388,6 +412,17 @@ impl ApiClient {
         self.request(session_id, path).response_post(payload).await
     }
 
+    pub async fn response_post_uncompressed(
+        &self,
+        session_id: Option<&str>,
+        path: &str,
+        payload: &Value,
+    ) -> Result<Response> {
+        self.request(session_id, path)
+            .response_post_uncompressed(payload)
+            .await
+    }
+
     pub async fn api_get(&self, session_id: Option<&str>, path: &str) -> Result<ApiResponse> {
         self.request(session_id, path).api_get().await
     }
@@ -452,6 +487,17 @@ impl<'a> ApiRequestBuilder<'a> {
         Ok(request.json(payload).send().await?)
     }
 
+    pub async fn response_post_uncompressed(mut self, payload: &Value) -> Result<Response> {
+        self.headers
+            .insert(ACCEPT_ENCODING, HeaderValue::from_static("identity"));
+        let request = self
+            .send_request_with_client(&self.client.streaming_client, |url, client| {
+                client.post(url)
+            })
+            .await?;
+        Ok(request.json(payload).send().await?)
+    }
+
     pub async fn multipart_post(self, form: reqwest::multipart::Form) -> Result<Response> {
         let request = self.send_request(|url, client| client.post(url)).await?;
         Ok(request.multipart(form).send().await?)
@@ -471,6 +517,18 @@ impl<'a> ApiRequestBuilder<'a> {
     where
         F: FnOnce(url::Url, &Client) -> reqwest::RequestBuilder,
     {
+        self.send_request_with_client(&self.client.client, request_builder)
+            .await
+    }
+
+    async fn send_request_with_client<F>(
+        &self,
+        client: &Client,
+        request_builder: F,
+    ) -> Result<reqwest::RequestBuilder>
+    where
+        F: FnOnce(url::Url, &Client) -> reqwest::RequestBuilder,
+    {
         let url = self.client.build_url(self.path)?;
         let mut headers = self.headers.clone();
         headers.remove(SESSION_ID_HEADER);
@@ -480,7 +538,7 @@ impl<'a> ApiRequestBuilder<'a> {
             headers.insert(header_name, header_value);
         }
 
-        let mut request = request_builder(url, &self.client.client);
+        let mut request = request_builder(url, client);
         request = request.headers(headers);
 
         request = match &self.client.auth {

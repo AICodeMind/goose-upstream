@@ -618,8 +618,16 @@ export function useChatSessionController({
 
         if (hasPendingProvider) {
           patch.providerId = nextProviderId;
-          patch.modelId = undefined;
-          patch.modelName = undefined;
+          if (pendingModelSelection) {
+            patch.modelId = pendingModelSelection.id;
+            patch.modelName = pendingModelSelection.name;
+          } else {
+            patch.modelId = undefined;
+            patch.modelName = undefined;
+          }
+        } else if (hasPendingModel && pendingModelSelection) {
+          patch.modelId = pendingModelSelection.id;
+          patch.modelName = pendingModelSelection.name;
         }
         if (hasPendingPersona) {
           patch.personaId = nextPersonaId;
@@ -631,6 +639,9 @@ export function useChatSessionController({
           );
         }
 
+        const previousSessionSnapshot = useChatSessionStore
+          .getState()
+          .getSession(sessionId);
         useChatSessionStore.getState().patchSession(sessionId, patch);
 
         try {
@@ -657,6 +668,10 @@ export function useChatSessionController({
           }
         } catch (error) {
           console.error("Failed to sync pending Home state:", error);
+          useChatSessionStore.getState().patchSession(sessionId, {
+            modelId: previousSessionSnapshot?.modelId,
+            modelName: previousSessionSnapshot?.modelName,
+          });
           return;
         }
 

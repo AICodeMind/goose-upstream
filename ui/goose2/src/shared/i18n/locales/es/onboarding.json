@@ -46,7 +46,12 @@
     "browseAll": "Mostrar más",
     "noModels": "Este proveedor está configurado, pero aún no hay modelos disponibles.",
     "selectFailed": "No se pudo seleccionar este proveedor.",
-    "useCurrent": "Mantener valor predeterminado"
+    "useCurrent": "Mantener valor predeterminado",
+    "getKeyIntro": "¿Aún no tienes una API Key?",
+    "getKeyLink": "Créala en la consola de XingYun",
+    "groupHintIntro": "Al crear el token, elige el grupo según los modelos que quieras usar — la app está optimizada para ambos:",
+    "groupCodeMind": "Principalmente modelos del extranjero. Elige este si usas proveedores internacionales.",
+    "groupCodeMindChina": "Principalmente modelos de China. Elige este si usas proveedores dentro de China."
   },
   "tour": {
     "title": "Listo para empezar",
