@@ -50,6 +50,27 @@ on:
         required: false
         default: ""
         type: string
+      build-macos:
+        description: "Whether to build macOS artifacts"
+        required: false
+        default: true
+        type: boolean
+      build-linux:
+        description: "Whether to build Linux artifacts"
+        required: false
+        default: true
+        type: boolean
+      build-windows:
+        description: "Whether to build Windows artifacts"
+        required: false
+        default: true
+        type: boolean
+      windows-targets:
+        description: "Windows target matrix JSON"
+        required: false
+        default: >-
+          [{"artifact_arch":"x64","target":"x86_64-pc-windows-msvc","cli_artifact":"goose-x86_64-pc-windows-msvc","allow_failure":false},{"artifact_arch":"arm64","target":"aarch64-pc-windows-msvc","cli_artifact":"goose-aarch64-pc-windows-msvc","allow_failure":true}]
+        type: string
 
 jobs:
   # ───────────────────────────────────────────────
@@ -57,6 +78,7 @@ jobs:
   # ───────────────────────────────────────────────
   bundle-macos-arm:
     name: "macOS ARM64"
+    if: inputs.build-macos
     runs-on: macos-latest
     environment: ${{ inputs.environment || '' }}
     timeout-minutes: 120
@@ -244,6 +266,7 @@ jobs:
   # ───────────────────────────────────────────────
   bundle-macos-intel:
     name: "macOS x86_64"
+    if: inputs.build-macos
     runs-on: macos-15-intel
     environment: ${{ inputs.environment || '' }}
     timeout-minutes: 120
@@ -423,6 +446,7 @@ jobs:
   # ───────────────────────────────────────────────
   bundle-linux:
     name: "Linux x86_64"
+    if: inputs.build-linux
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     permissions:
@@ -568,21 +592,14 @@ jobs:
   # ───────────────────────────────────────────────
   bundle-windows:
     name: "Windows ${{ matrix.artifact_arch }}"
+    if: inputs.build-windows
     runs-on: windows-latest
     timeout-minutes: 120
     continue-on-error: ${{ matrix.allow_failure }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - artifact_arch: x64
-            target: x86_64-pc-windows-msvc
-            cli_artifact: goose-x86_64-pc-windows-msvc
-            allow_failure: false
-          - artifact_arch: arm64
-            target: aarch64-pc-windows-msvc
-            cli_artifact: goose-aarch64-pc-windows-msvc
-            allow_failure: true
+        include: ${{ fromJSON(inputs.windows-targets) }}
     permissions:
       id-token: write
       contents: read
@@ -722,7 +739,7 @@ jobs:
   sign-windows:
     name: "Sign Windows installers"
     needs: bundle-windows
-    if: inputs.windows-signing
+    if: inputs.build-windows && inputs.windows-signing
     runs-on: windows-latest
     environment: signing
     permissions:

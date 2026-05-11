@@ -12,6 +12,26 @@ on:
         required: false
         type: string
         default: ""
+      build-macos:
+        description: "Build macOS artifacts on GitHub Actions"
+        required: false
+        type: boolean
+        default: false
+      build-linux:
+        description: "Build Linux artifacts on GitHub Actions"
+        required: false
+        type: boolean
+        default: true
+      build-windows:
+        description: "Build Windows artifacts on GitHub Actions"
+        required: false
+        type: boolean
+        default: true
+      include-windows-arm64:
+        description: "Also build Windows ARM64 artifacts"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   bundle-goose2:
@@ -24,3 +44,12 @@ jobs:
       signing: false
       ref: ${{ inputs.branch }}
       cli-run-id: ${{ inputs.cli-run-id }}
+      build-macos: ${{ inputs.build-macos }}
+      build-linux: ${{ inputs.build-linux }}
+      build-windows: ${{ inputs.build-windows }}
+      windows-targets: >-
+        ${{
+          inputs.include-windows-arm64
+          && '[{"artifact_arch":"x64","target":"x86_64-pc-windows-msvc","cli_artifact":"goose-x86_64-pc-windows-msvc","allow_failure":false},{"artifact_arch":"arm64","target":"aarch64-pc-windows-msvc","cli_artifact":"goose-aarch64-pc-windows-msvc","allow_failure":true}]'
+          || '[{"artifact_arch":"x64","target":"x86_64-pc-windows-msvc","cli_artifact":"goose-x86_64-pc-windows-msvc","allow_failure":false}]'
+        }}
