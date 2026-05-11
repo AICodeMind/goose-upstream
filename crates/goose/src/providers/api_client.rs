@@ -2,7 +2,7 @@ use crate::session_context::SESSION_ID_HEADER;
 use anyhow::Result;
 use async_trait::async_trait;
 use reqwest::{
-    header::{HeaderMap, HeaderName, HeaderValue},
+    header::{HeaderMap, HeaderName, HeaderValue, ACCEPT_ENCODING},
     Certificate, Client, Identity, Response, StatusCode,
 };
 use serde_json::Value;
@@ -388,6 +388,17 @@ impl ApiClient {
         self.request(session_id, path).response_post(payload).await
     }
 
+    pub async fn response_post_uncompressed(
+        &self,
+        session_id: Option<&str>,
+        path: &str,
+        payload: &Value,
+    ) -> Result<Response> {
+        self.request(session_id, path)
+            .response_post_uncompressed(payload)
+            .await
+    }
+
     pub async fn api_get(&self, session_id: Option<&str>, path: &str) -> Result<ApiResponse> {
         self.request(session_id, path).api_get().await
     }
@@ -448,6 +459,13 @@ impl<'a> ApiRequestBuilder<'a> {
     }
 
     pub async fn response_post(self, payload: &Value) -> Result<Response> {
+        let request = self.send_request(|url, client| client.post(url)).await?;
+        Ok(request.json(payload).send().await?)
+    }
+
+    pub async fn response_post_uncompressed(mut self, payload: &Value) -> Result<Response> {
+        self.headers
+            .insert(ACCEPT_ENCODING, HeaderValue::from_static("identity"));
         let request = self.send_request(|url, client| client.post(url)).await?;
         Ok(request.json(payload).send().await?)
     }

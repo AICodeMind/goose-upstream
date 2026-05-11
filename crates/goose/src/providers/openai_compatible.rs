@@ -117,7 +117,7 @@ impl Provider for OpenAiCompatibleProvider {
             .with_retry(|| async {
                 let resp = self
                     .api_client
-                    .response_post(Some(session_id), &completions_path, &payload)
+                    .response_post_uncompressed(Some(session_id), &completions_path, &payload)
                     .await?;
                 handle_status(resp).await
             })
