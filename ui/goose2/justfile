@@ -52,7 +52,31 @@ tauri-check:
 ci: check clippy test build tauri-check
 
 bundle:
-    pnpm tauri build
+    #!/usr/bin/env bash
+    set -euo pipefail
+    REPO_ROOT="$(cd ../.. && pwd)"
+    TRIPLE="$(rustc --print host-tuple)"
+    GOOSE_BIN="${REPO_ROOT}/target/release/goose"
+    SIDECAR_BIN="${REPO_ROOT}/target/release/goose-${TRIPLE}"
+    if [[ "$TRIPLE" == *windows* ]]; then
+        GOOSE_BIN="${GOOSE_BIN}.exe"
+        SIDECAR_BIN="${SIDECAR_BIN}.exe"
+    fi
+    cleanup_dmg() {
+        if command -v hdiutil >/dev/null 2>&1; then
+            hdiutil info | awk '/rw\.[0-9]+\.CodeMindX_.*\.dmg/{seen=1} seen && /^\/dev\// {print $1; seen=0}' | while read -r disk; do
+                hdiutil detach "$disk" -force || true
+            done
+            rm -f src-tauri/target/release/bundle/macos/rw.*.CodeMindX_*.dmg
+        fi
+    }
+    trap cleanup_dmg EXIT
+    cargo build --manifest-path "${REPO_ROOT}/Cargo.toml" --release -p goose-cli --bin goose
+    cp "${GOOSE_BIN}" "${SIDECAR_BIN}"
+    chmod +x "${SIDECAR_BIN}"
+    cleanup_dmg
+    rm -f "src-tauri/target/release/goose" "src-tauri/target/release/goose-${TRIPLE}" "src-tauri/target/release/goose.exe" "src-tauri/target/release/goose-${TRIPLE}.exe"
+    CI=true pnpm tauri build
 
 # ── Test ─────────────────────────────────────────────────────
 

@@ -9,6 +9,7 @@ import {
 import {
   setActiveMessageId,
   clearActiveMessageId,
+  markPendingModelUpdate,
 } from "./acpNotificationHandler";
 import { searchSessionsViaExports } from "./sessionSearch";
 import { perfLog } from "@/shared/lib/perfLog";
@@ -174,6 +175,7 @@ export async function acpSetModel(
   sessionId: string,
   modelId: string,
 ): Promise<void> {
+  markPendingModelUpdate(sessionId, modelId);
   return directAcp.setModel(sessionId, modelId);
 }
 

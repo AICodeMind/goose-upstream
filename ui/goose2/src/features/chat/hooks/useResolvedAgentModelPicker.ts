@@ -322,16 +322,18 @@ export function useResolvedAgentModelPicker({
         Boolean(nextProviderId) && nextProviderId !== session.providerId;
 
       if (providerChanged && nextProviderId) {
-        useChatSessionStore
-          .getState()
-          .switchSessionProvider(sessionId, nextProviderId);
+        useChatSessionStore.getState().patchSession(sessionId, {
+          providerId: nextProviderId,
+          modelId,
+          modelName,
+        });
         setGlobalSelectedProvider(nextProviderId);
+      } else {
+        useChatSessionStore.getState().patchSession(sessionId, {
+          modelId,
+          modelName,
+        });
       }
-
-      useChatSessionStore.getState().patchSession(sessionId, {
-        modelId,
-        modelName,
-      });
 
       void (async () => {
         try {

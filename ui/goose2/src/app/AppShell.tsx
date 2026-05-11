@@ -275,9 +275,17 @@ export function AppShell({ children }: { children?: React.ReactNode }) {
           providerAtStart,
           sessionModelPreference,
         );
-        const modelIdToApply =
-          resolvedProviderId === sessionModelPreference.providerId
+        const shouldPreserveHomeModel =
+          resolvedProviderId === homeSession.providerId && homeSession.modelId;
+        const modelIdToApply = shouldPreserveHomeModel
+          ? homeSession.modelId
+          : resolvedProviderId === sessionModelPreference.providerId
             ? sessionModelPreference.modelId
+            : undefined;
+        const modelNameToApply = shouldPreserveHomeModel
+          ? homeSession.modelName
+          : resolvedProviderId === sessionModelPreference.providerId
+            ? sessionModelPreference.modelName
             : undefined;
         const result = await applyLatestSessionConfig({
           sessionId: homeSession.id,
@@ -298,7 +306,7 @@ export function AppShell({ children }: { children?: React.ReactNode }) {
             (shouldClearHomeModel ? undefined : homeSession.modelId),
           modelName:
             modelIdToApply != null
-              ? sessionModelPreference.modelName
+              ? modelNameToApply
               : shouldClearHomeModel
                 ? undefined
                 : homeSession.modelName,

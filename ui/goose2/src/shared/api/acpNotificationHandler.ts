@@ -49,6 +49,21 @@ interface LivePerf {
   chunkCount: number;
 }
 const livePerf = new Map<string, LivePerf>();
+const pendingModelUpdates = new Map<
+  string,
+  { modelId: string; expiresAt: number }
+>();
+const PENDING_MODEL_UPDATE_TTL_MS = 5000;
+
+export function markPendingModelUpdate(
+  sessionId: string,
+  modelId: string,
+): void {
+  pendingModelUpdates.set(sessionId, {
+    modelId,
+    expiresAt: Date.now() + PENDING_MODEL_UPDATE_TTL_MS,
+  });
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -499,6 +514,17 @@ function handleShared(sessionId: string, update: SessionUpdate): void {
           const currentModelName =
             availableModels.find((m) => m.id === currentModelId)?.name ??
             currentModelId;
+
+          const pendingModelUpdate = pendingModelUpdates.get(sessionId);
+          if (pendingModelUpdate) {
+            if (Date.now() > pendingModelUpdate.expiresAt) {
+              pendingModelUpdates.delete(sessionId);
+            } else if (pendingModelUpdate.modelId !== currentModelId) {
+              break;
+            } else {
+              pendingModelUpdates.delete(sessionId);
+            }
+          }
 
           const sessionStore = useChatSessionStore.getState();
           sessionStore.patchSession(sessionId, {

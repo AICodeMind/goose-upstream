@@ -202,8 +202,19 @@ jobs:
           certificate-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
 
       # ── Tauri bundle ──
-      - name: Bundle Goose 2 (pnpm tauri build)
+      - name: Bundle Goose 2 unsigned
+        if: ${{ !inputs.signing }}
         env:
+          CI: "true"
+        working-directory: ui/goose2
+        run: |
+          source ../../bin/activate-hermit
+          pnpm tauri build
+
+      - name: Bundle Goose 2 signed
+        if: inputs.signing
+        env:
+          CI: "true"
           APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '-' }}
           APPLE_ID: ${{ inputs.signing && secrets.APPLE_ID || '' }}
           APPLE_PASSWORD: ${{ inputs.signing && secrets.APPLE_ID_PASSWORD || '' }}
@@ -252,14 +263,15 @@ jobs:
           open -g "$APP_PATH"
           sleep 5
 
-          if pgrep -f "Goose.app/Contents/MacOS" > /dev/null; then
+          APP_NAME="$(basename "$APP_PATH")"
+          if pgrep -f "${APP_NAME}/Contents/MacOS" > /dev/null; then
             echo "✅ App is running"
           else
             echo "❌ App did not stay open"
             exit 1
           fi
 
-          pkill -f "Goose.app/Contents/MacOS" || true
+          pkill -f "${APP_NAME}/Contents/MacOS" || true
 
   # ───────────────────────────────────────────────
   # macOS Intel (x86_64)
@@ -384,8 +396,19 @@ jobs:
           certificate-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
 
       # ── Tauri bundle ──
-      - name: Bundle Goose 2 for Intel
+      - name: Bundle Goose 2 for Intel unsigned
+        if: ${{ !inputs.signing }}
         env:
+          CI: "true"
+        working-directory: ui/goose2
+        run: |
+          source ../../bin/activate-hermit
+          pnpm tauri build --target x86_64-apple-darwin
+
+      - name: Bundle Goose 2 for Intel signed
+        if: inputs.signing
+        env:
+          CI: "true"
           APPLE_SIGNING_IDENTITY: ${{ inputs.signing && 'Developer ID Application' || '-' }}
           APPLE_ID: ${{ inputs.signing && secrets.APPLE_ID || '' }}
           APPLE_PASSWORD: ${{ inputs.signing && secrets.APPLE_ID_PASSWORD || '' }}
@@ -432,14 +455,15 @@ jobs:
           open -g "$APP_PATH"
           sleep 5
 
-          if pgrep -f "Goose.app/Contents/MacOS" > /dev/null; then
+          APP_NAME="$(basename "$APP_PATH")"
+          if pgrep -f "${APP_NAME}/Contents/MacOS" > /dev/null; then
             echo "✅ App is running"
           else
             echo "❌ App did not stay open"
             exit 1
           fi
 
-          pkill -f "Goose.app/Contents/MacOS" || true
+          pkill -f "${APP_NAME}/Contents/MacOS" || true
 
   # ───────────────────────────────────────────────
   # Linux x86_64
