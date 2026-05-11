@@ -2,6 +2,7 @@ mod commands;
 mod services;
 mod types;
 
+use services::acp::GooseServeProcess;
 use services::distro_bundle::DistroBundleState;
 use services::personas::PersonaStore;
 use tauri::Manager;
@@ -80,5 +81,9 @@ pub fn run() {
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
-        .run(|_app, _event| {});
+        .run(|_app, event| {
+            if matches!(event, tauri::RunEvent::ExitRequested { .. }) {
+                tauri::async_runtime::block_on(GooseServeProcess::shutdown());
+            }
+        });
 }

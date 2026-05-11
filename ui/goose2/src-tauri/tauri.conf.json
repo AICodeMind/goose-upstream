@@ -58,6 +58,11 @@
         "depends": ["vulkan-loader"]
       }
     },
+    "windows": {
+      "nsis": {
+        "installerHooks": "./windows/nsis-hooks.nsh"
+      }
+    },
     "macOS": {
       "entitlements": "entitlements.plist",
       "hardenedRuntime": true

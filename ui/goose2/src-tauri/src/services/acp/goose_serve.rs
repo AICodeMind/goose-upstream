@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 use crate::services::distro_bundle::DistroBundleState;
 
 use tokio::process::{Child, Command};
-use tokio::sync::OnceCell;
+use tokio::sync::{Mutex, OnceCell};
 
 const GOOSE_SERVE_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 const GOOSE_SERVE_CONNECT_RETRY_DELAY: Duration = Duration::from_millis(100);
@@ -25,7 +25,7 @@ const LOCALHOST: &str = "127.0.0.1";
 pub struct GooseServeProcess {
     port: u16,
     secret_key: String,
-    _child: Child,
+    child: Mutex<Option<Child>>,
 }
 
 /// Global singleton — initialised once at app startup.
@@ -55,6 +55,37 @@ impl GooseServeProcess {
             .await
     }
 
+    pub async fn shutdown() {
+        let Some(process) = GOOSE_SERVE.get() else {
+            return;
+        };
+
+        let mut child = process.child.lock().await;
+        let Some(mut child) = child.take() else {
+            return;
+        };
+
+        match child.try_wait() {
+            Ok(Some(status)) => {
+                log::info!("Goose serve already exited: {status}");
+                return;
+            }
+            Ok(None) => {}
+            Err(error) => {
+                log::warn!("Failed to poll goose serve before shutdown: {error}");
+            }
+        }
+
+        if let Err(error) = child.start_kill() {
+            log::warn!("Failed to terminate goose serve: {error}");
+            return;
+        }
+
+        if let Err(error) = child.wait().await {
+            log::warn!("Failed to wait for goose serve shutdown: {error}");
+        }
+    }
+
     async fn spawn(app_handle: tauri::AppHandle) -> Result<GooseServeProcess, String> {
         let port = reserve_free_port()?;
         let secret_key = format!("goose2-{}", uuid::Uuid::new_v4().simple());
@@ -71,6 +102,9 @@ impl GooseServeProcess {
 
         let mut command: Command = get_goose_command(&app_handle)?;
         let binary_display = command.as_std().get_program().to_string_lossy().to_string();
+        if std::env::var_os("GOOSE_BIN").is_none() {
+            cleanup_stale_goose_serve(&binary_display);
+        }
 
         if let Some(distro_state) = app_handle.try_state::<DistroBundleState>() {
             if let Some(bundle) = distro_state.bundle() {
@@ -116,7 +150,7 @@ impl GooseServeProcess {
         Ok(GooseServeProcess {
             port,
             secret_key,
-            _child: child,
+            child: Mutex::new(Some(child)),
         })
     }
 }
@@ -164,6 +198,49 @@ async fn wait_for_server_ready(port: u16, child: &mut Child) -> Result<(), Strin
 fn default_serve_working_dir() -> PathBuf {
     dirs::home_dir().unwrap_or_else(|| PathBuf::from("/tmp"))
 }
+
+fn cleanup_stale_goose_serve(binary_path: &str) {
+    cleanup_stale_goose_serve_impl(binary_path);
+}
+
+#[cfg(unix)]
+fn cleanup_stale_goose_serve_impl(binary_path: &str) {
+    let Ok(output) = std::process::Command::new("ps")
+        .args(["axo", "pid=,ppid=,command="])
+        .output()
+    else {
+        return;
+    };
+
+    if !output.status.success() {
+        return;
+    }
+
+    let output = String::from_utf8_lossy(&output.stdout);
+    for line in output.lines() {
+        let mut fields = line.split_whitespace();
+        let Some(pid) = fields.next() else {
+            continue;
+        };
+        let Some(ppid) = fields.next() else {
+            continue;
+        };
+        let command = fields.collect::<Vec<_>>().join(" ");
+        if ppid == "1"
+            && command.starts_with(binary_path)
+            && command.contains(" serve ")
+            && command.contains(" --host 127.0.0.1 ")
+        {
+            log::info!("Terminating stale goose serve process: pid={pid}");
+            let _ = std::process::Command::new("kill")
+                .args(["-TERM", pid])
+                .status();
+        }
+    }
+}
+
+#[cfg(not(unix))]
+fn cleanup_stale_goose_serve_impl(_binary_path: &str) {}
 
 fn prepend_path_env(command: &mut Command, extra_dir: &std::path::Path) {
     let mut paths = vec![extra_dir.to_path_buf()];
