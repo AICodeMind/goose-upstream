@@ -1,6 +1,7 @@
 import {
   IconArrowRight,
   IconCheck,
+  IconExternalLink,
   IconPlugConnected,
 } from "@tabler/icons-react";
 import { cn } from "@/shared/lib/cn";
@@ -21,6 +22,7 @@ interface ProviderStepProps {
   onApiKeyChange: (value: string) => void;
   onSaveApiKey: () => void;
   onContinue: () => void;
+  onOpenApiKeyConsole: () => void;
   t: TFunctionLike;
 }
 
@@ -35,6 +37,7 @@ export function ProviderStep({
   onApiKeyChange,
   onSaveApiKey,
   onContinue,
+  onOpenApiKeyConsole,
   t,
 }: ProviderStepProps) {
   const isBusy = credentialLoading || savingApiKey;
@@ -117,6 +120,41 @@ export function ProviderStep({
             <p className="text-xs leading-5 text-muted-foreground">
               {t("provider.apiKeyHelp")}
             </p>
+
+            <div className="mt-3 rounded-[10px] border border-border/70 bg-background-secondary/40 p-3 text-left text-xs leading-5">
+              <p className="text-foreground">
+                {t("provider.getKeyIntro")}{" "}
+                <button
+                  type="button"
+                  onClick={onOpenApiKeyConsole}
+                  className="inline-flex items-center gap-0.5 text-brand underline-offset-2 hover:underline"
+                >
+                  {t("provider.getKeyLink")}
+                  <IconExternalLink
+                    aria-hidden
+                    className="size-3"
+                    strokeWidth={1.75}
+                  />
+                </button>
+              </p>
+              <p className="mt-2 text-muted-foreground">
+                {t("provider.groupHintIntro")}
+              </p>
+              <ul className="mt-1.5 space-y-1.5 text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="mt-[1px] inline-flex shrink-0 items-center rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+                    CodeMind
+                  </span>
+                  <span>{t("provider.groupCodeMind")}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-[1px] inline-flex shrink-0 items-center rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+                    CodeMind-China
+                  </span>
+                  <span>{t("provider.groupCodeMindChina")}</span>
+                </li>
+              </ul>
+            </div>
           </div>
         )}
       </div>

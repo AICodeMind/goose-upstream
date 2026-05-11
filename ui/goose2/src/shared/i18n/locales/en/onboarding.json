@@ -51,6 +51,11 @@
     "selectFailed": "Could not save default model settings.",
     "loadingModels": "Syncing available models...",
     "modelRefreshWarning": "Models could not be refreshed yet: {{message}}",
+    "getKeyIntro": "Don't have a key yet?",
+    "getKeyLink": "Create one in the XingYun console",
+    "groupHintIntro": "When you create the token, pick the group that matches the models you want to use — this app is tuned for both:",
+    "groupCodeMind": "Mainly overseas models. Pick this if you use international providers.",
+    "groupCodeMindChina": "Mainly China-domestic models. Pick this if you use domestic providers.",
     "continue": "Continue",
     "saveAndContinue": "Save and continue"
   },
