@@ -458,6 +458,17 @@ jobs:
         with:
           ref: ${{ inputs.ref != '' && inputs.ref || '' }}
 
+      - name: Free runner disk space
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -af || true
+          sudo apt-get clean
+          df -h
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -524,6 +535,16 @@ jobs:
           TRIPLE=$(rustc --print host-tuple)
           cp target/release/goose "target/release/goose-${TRIPLE}"
           ls -lh "target/release/goose-${TRIPLE}"
+
+      - name: Free Rust build intermediates
+        if: inputs.cli-run-id == ''
+        run: |
+          find target/release -mindepth 1 -maxdepth 1 \
+            ! -name goose \
+            ! -name 'goose-*' \
+            -exec rm -rf {} +
+          rm -rf target/debug
+          df -h
 
       # ── Frontend ──
       - name: Cache pnpm dependencies
