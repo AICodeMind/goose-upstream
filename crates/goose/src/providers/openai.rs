@@ -21,6 +21,7 @@ use async_trait::async_trait;
 use futures::future::BoxFuture;
 use futures::{StreamExt, TryStreamExt};
 use reqwest::StatusCode;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::io;
 use tokio::pin;
@@ -120,6 +121,7 @@ pub struct OpenAiProvider {
     project: Option<String>,
     model: ModelConfig,
     custom_headers: Option<HashMap<String, String>>,
+    request_body: Option<HashMap<String, Value>>,
     supports_streaming: bool,
     name: String,
     custom_models: Option<Vec<String>>,
@@ -270,6 +272,7 @@ impl OpenAiProvider {
             project,
             model,
             custom_headers,
+            request_body: None,
             supports_streaming: true,
             name: OPEN_AI_PROVIDER_NAME.to_string(),
             custom_models: None,
@@ -286,6 +289,7 @@ impl OpenAiProvider {
             project: None,
             model,
             custom_headers: None,
+            request_body: None,
             supports_streaming: true,
             name: OPEN_AI_PROVIDER_NAME.to_string(),
             custom_models: None,
@@ -373,6 +377,7 @@ impl OpenAiProvider {
             project: None,
             model,
             custom_headers: config.headers,
+            request_body: config.request_body,
             supports_streaming: config.supports_streaming.unwrap_or(true),
             name: config.name.clone(),
             custom_models,
@@ -459,18 +464,24 @@ impl OpenAiProvider {
         "ovhcloud",
     ];
 
-    fn sanitize_request_for_compat(&self, mut payload: serde_json::Value) -> serde_json::Value {
-        if !Self::PROVIDERS_NEEDING_MAX_TOKENS_REMAP.contains(&self.name.as_str()) {
-            return payload;
-        }
-
-        if let Some(obj) = payload.as_object_mut() {
-            if let Some(value) = obj.remove("max_completion_tokens") {
-                obj.entry("max_tokens").or_insert(value);
-            }
+    fn apply_request_body_overrides(&self, mut payload: serde_json::Value) -> serde_json::Value {
+        if let (Some(overrides), Some(obj)) = (&self.request_body, payload.as_object_mut()) {
+            obj.extend(overrides.clone());
         }
 
         payload
+    }
+
+    fn sanitize_request_for_compat(&self, mut payload: serde_json::Value) -> serde_json::Value {
+        if Self::PROVIDERS_NEEDING_MAX_TOKENS_REMAP.contains(&self.name.as_str()) {
+            if let Some(obj) = payload.as_object_mut() {
+                if let Some(value) = obj.remove("max_completion_tokens") {
+                    obj.entry("max_tokens").or_insert(value);
+                }
+            }
+        }
+
+        self.apply_request_body_overrides(payload)
     }
 
     fn map_base_path(base_path: &str, target: &str, fallback: &str) -> String {
@@ -902,6 +913,7 @@ mod tests {
             project: None,
             model: ModelConfig::new_or_fail("test-model"),
             custom_headers: None,
+            request_body: None,
             supports_streaming: true,
             name: name.to_string(),
             custom_models: None,
@@ -984,6 +996,40 @@ mod tests {
 
         let result = provider.sanitize_request_for_compat(payload.clone());
         assert_eq!(result, payload);
+    }
+
+    #[test]
+    fn sanitize_applies_declarative_request_body_overrides() {
+        let mut provider = make_provider("xingyun");
+        provider.request_body = Some(HashMap::from([(
+            "client".to_string(),
+            json!("codemind-desktop"),
+        )]));
+        let payload = json!({
+            "model": "qwen3.6-plus",
+            "messages": []
+        });
+
+        let result = provider.sanitize_request_for_compat(payload);
+        let obj = result.as_object().unwrap();
+
+        assert_eq!(obj.get("client").unwrap(), &json!("codemind-desktop"));
+    }
+
+    #[test]
+    fn sanitize_request_body_overrides_generated_fields() {
+        let mut provider = make_provider("xingyun");
+        provider.request_body = Some(HashMap::from([("stream".to_string(), json!(false))]));
+        let payload = json!({
+            "model": "qwen3.6-plus",
+            "messages": [],
+            "stream": true
+        });
+
+        let result = provider.sanitize_request_for_compat(payload);
+        let obj = result.as_object().unwrap();
+
+        assert_eq!(obj.get("stream").unwrap(), &json!(false));
     }
 
     #[test]

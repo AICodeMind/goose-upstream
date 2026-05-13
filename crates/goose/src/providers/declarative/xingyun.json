@@ -12,6 +12,9 @@
     }
   ],
   "supports_streaming": true,
+  "request_body": {
+    "client": "codemind-desktop"
+  },
   "requires_auth": true,
   "dynamic_models": true,
   "skip_canonical_filtering": true

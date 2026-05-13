@@ -76,6 +76,8 @@ pub struct DeclarativeProviderConfig {
     pub base_url: String,
     pub models: Vec<ModelInfo>,
     pub headers: Option<HashMap<String, String>>,
+    #[serde(default)]
+    pub request_body: Option<HashMap<String, serde_json::Value>>,
     pub timeout_seconds: Option<u64>,
     pub supports_streaming: Option<bool>,
     #[serde(default = "default_requires_auth")]
@@ -290,6 +292,7 @@ pub fn create_custom_provider(
         base_url: params.api_url,
         models: model_infos,
         headers: params.headers,
+        request_body: None,
         timeout_seconds: None,
         supports_streaming: params.supports_streaming,
         requires_auth: params.requires_auth,
@@ -360,6 +363,7 @@ pub fn update_custom_provider(params: UpdateCustomProviderParams) -> Result<()> 
                 Some(h) => Some(h),
                 None => existing_config.headers,
             },
+            request_body: existing_config.request_body,
             timeout_seconds: existing_config.timeout_seconds,
             supports_streaming: params.supports_streaming,
             requires_auth: params.requires_auth,
@@ -659,8 +663,25 @@ mod tests {
             serde_json::from_str(json).expect("groq.json should parse without env_vars");
         assert!(config.env_vars.is_none());
         assert!(config.dynamic_models.is_none());
+        assert!(config.request_body.is_none());
         assert!(config.model_doc_link.is_none());
         assert!(config.setup_steps.is_empty());
+    }
+
+    #[test]
+    fn test_xingyun_json_deserializes_with_request_body() {
+        let json = include_str!("../providers/declarative/xingyun.json");
+        let config: DeclarativeProviderConfig =
+            serde_json::from_str(json).expect("xingyun.json should parse");
+        assert_eq!(config.name, "xingyun");
+        assert_eq!(
+            config
+                .request_body
+                .as_ref()
+                .and_then(|body| body.get("client"))
+                .and_then(|value| value.as_str()),
+            Some("codemind-desktop")
+        );
     }
 
     #[test]
