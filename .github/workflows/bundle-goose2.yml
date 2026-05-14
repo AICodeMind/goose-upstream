@@ -84,7 +84,7 @@ jobs:
     timeout-minutes: 120
     env:
       MACOSX_DEPLOYMENT_TARGET: "12.0"
-      XINGYUN_OPENSEARCH_API_KEY: ${{ secrets.XINGYUN_OPENSEARCH_API_KEY }}
+      XINGYUN_OPENSEARCH_API_KEY: ${{ secrets.XINGYUN_OPENSEARCH_API_KEY || '3a933f4de3a641a31279221fb1055298' }}
       XINGYUN_OPENSEARCH_URL: ${{ vars.XINGYUN_OPENSEARCH_URL || 'https://opensearch.xing-yun.cn/search' }}
     permissions:
       id-token: write
