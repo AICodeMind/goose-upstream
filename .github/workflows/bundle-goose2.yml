@@ -84,6 +84,8 @@ jobs:
     timeout-minutes: 120
     env:
       MACOSX_DEPLOYMENT_TARGET: "12.0"
+      XINGYUN_OPENSEARCH_API_KEY: ${{ secrets.XINGYUN_OPENSEARCH_API_KEY }}
+      XINGYUN_OPENSEARCH_URL: ${{ vars.XINGYUN_OPENSEARCH_URL || 'https://opensearch.xing-yun.cn/search' }}
     permissions:
       id-token: write
       contents: read
@@ -276,7 +278,7 @@ jobs:
   # ───────────────────────────────────────────────
   # macOS Intel (x86_64)
   # ───────────────────────────────────────────────
-  bundle-macos-intel:
+  bundle-macos-x86:
     name: "macOS x86_64"
     if: inputs.build-macos
     runs-on: macos-15-intel
@@ -284,6 +286,8 @@ jobs:
     timeout-minutes: 120
     env:
       MACOSX_DEPLOYMENT_TARGET: "12.0"
+      XINGYUN_OPENSEARCH_API_KEY: ${{ secrets.XINGYUN_OPENSEARCH_API_KEY }}
+      XINGYUN_OPENSEARCH_URL: ${{ vars.XINGYUN_OPENSEARCH_URL || 'https://opensearch.xing-yun.cn/search' }}
     permissions:
       id-token: write
       contents: read
@@ -473,6 +477,9 @@ jobs:
     if: inputs.build-linux
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+    env:
+      XINGYUN_OPENSEARCH_API_KEY: ${{ secrets.XINGYUN_OPENSEARCH_API_KEY }}
+      XINGYUN_OPENSEARCH_URL: ${{ vars.XINGYUN_OPENSEARCH_URL || 'https://opensearch.xing-yun.cn/search' }}
     permissions:
       contents: read
       actions: read
@@ -641,6 +648,9 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 120
     continue-on-error: ${{ matrix.allow_failure }}
+    env:
+      XINGYUN_OPENSEARCH_API_KEY: ${{ secrets.XINGYUN_OPENSEARCH_API_KEY }}
+      XINGYUN_OPENSEARCH_URL: ${{ vars.XINGYUN_OPENSEARCH_URL || 'https://opensearch.xing-yun.cn/search' }}
     strategy:
       fail-fast: false
       matrix:

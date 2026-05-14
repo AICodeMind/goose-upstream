@@ -195,7 +195,7 @@ pub static PLATFORM_EXTENSIONS: Lazy<HashMap<&'static str, PlatformExtensionDef>
             PlatformExtensionDef {
                 name: web_search::EXTENSION_NAME,
                 display_name: "Web Search",
-                description: "Search the web with DuckDuckGo without requiring an API key",
+                description: "Search the web with XingYun OpenSearch",
                 default_enabled: true,
                 unprefixed_tools: false,
                 hidden: false,

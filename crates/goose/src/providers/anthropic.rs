@@ -410,6 +410,7 @@ mod tests {
             base_url: "http://localhost:1".to_string(),
             models,
             headers: None,
+            request_body: None,
             timeout_seconds: None,
             supports_streaming: Some(true),
             requires_auth: false,

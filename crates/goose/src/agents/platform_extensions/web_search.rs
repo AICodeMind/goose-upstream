@@ -10,12 +10,18 @@ use rmcp::model::{
 };
 use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
+use std::path::{Path, PathBuf};
 use tokio_util::sync::CancellationToken;
 
 pub static EXTENSION_NAME: &str = "web_search";
 const DEFAULT_MAX_RESULTS: usize = 8;
 const MAX_RESULTS_LIMIT: usize = 20;
 const SEARCH_TIMEOUT_SECS: u64 = 20;
+const DEFAULT_SEARCH_ENDPOINT: &str = "https://opensearch.xing-yun.cn/search";
+const SEARCH_ENDPOINT_ENV: &str = "XINGYUN_OPENSEARCH_URL";
+const SEARCH_API_KEY_ENV: &str = "XINGYUN_OPENSEARCH_API_KEY";
+const DEFAULT_SEARCH_API_KEY: &str = "3a933f4de3a641a31279221fb1055298";
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 struct WebSearchParams {
@@ -34,6 +40,8 @@ struct SearchResult {
 pub struct WebSearchClient {
     info: InitializeResult,
     http: reqwest::Client,
+    endpoint: String,
+    api_key: Option<String>,
 }
 
 impl WebSearchClient {
@@ -56,8 +64,17 @@ impl WebSearchClient {
             .user_agent("XingYunAI/1.0 web_search")
             .timeout(std::time::Duration::from_secs(SEARCH_TIMEOUT_SECS))
             .build()?;
+        let endpoint = search_setting(SEARCH_ENDPOINT_ENV)
+            .unwrap_or_else(|| DEFAULT_SEARCH_ENDPOINT.to_string());
+        let api_key = search_setting(SEARCH_API_KEY_ENV)
+            .or_else(|| non_empty(DEFAULT_SEARCH_API_KEY.to_string()));
 
-        Ok(Self { info, http })
+        Ok(Self {
+            info,
+            http,
+            endpoint,
+            api_key,
+        })
     }
 
     fn get_tools() -> Vec<Tool> {
@@ -68,12 +85,12 @@ impl WebSearchClient {
         vec![Tool::new(
             "search".to_string(),
             indoc! {r#"
-                Search the web using DuckDuckGo Lite without requiring an API key.
+                Search the web using XingYun OpenSearch.
 
                 Parameters:
                 - query: Search query.
                 - max_results: Optional number of results to return, 1 to 20. Defaults to 8.
-                - region: Optional DuckDuckGo region code, such as us-en, uk-en, de-de, fr-fr, or cn-zh.
+                - region: Optional language or region hint passed through to the search backend.
             "#}
             .to_string(),
             schema_value.as_object().unwrap().clone(),
@@ -98,8 +115,14 @@ impl WebSearchClient {
             .max_results
             .unwrap_or(DEFAULT_MAX_RESULTS)
             .clamp(1, MAX_RESULTS_LIMIT);
+        let api_key = self.api_key.as_deref().ok_or_else(|| {
+            format!("Missing required environment variable: {SEARCH_API_KEY_ENV}")
+        })?;
+
         let mut url = format!(
-            "https://lite.duckduckgo.com/lite/?q={}",
+            "{}{}q={}&format=json",
+            self.endpoint,
+            endpoint_separator(&self.endpoint),
             urlencoding::encode(query)
         );
         if let Some(region) = params
@@ -108,26 +131,27 @@ impl WebSearchClient {
             .map(str::trim)
             .filter(|s| !s.is_empty())
         {
-            url.push_str("&kl=");
+            url.push_str("&language=");
             url.push_str(&urlencoding::encode(region));
         }
 
-        let html = self
+        let response = self
             .http
-            .get(&url)
+            .get(url)
+            .header("X-API-Key", api_key)
             .send()
             .await
-            .map_err(|error| format!("DuckDuckGo request failed: {error}"))?
+            .map_err(|error| format!("XingYun OpenSearch request failed: {error}"))?
             .error_for_status()
-            .map_err(|error| format!("DuckDuckGo returned an error: {error}"))?
-            .text()
+            .map_err(|error| format!("XingYun OpenSearch returned an error: {error}"))?
+            .json::<OpenSearchResponse>()
             .await
-            .map_err(|error| format!("Failed to read DuckDuckGo response: {error}"))?;
+            .map_err(|error| format!("Failed to parse XingYun OpenSearch response: {error}"))?;
 
-        let results = parse_duckduckgo_lite_results(&html, max_results);
+        let results = parse_opensearch_results(response, max_results);
         if results.is_empty() {
             return Ok(format!(
-                "No DuckDuckGo results found for `{query}`. Try a broader query."
+                "No XingYun OpenSearch results found for `{query}`. Try a broader query."
             ));
         }
 
@@ -143,7 +167,7 @@ fn parse_args(arguments: Option<JsonObject>) -> Result<WebSearchParams, String> 
 }
 
 fn format_results(query: &str, results: &[SearchResult]) -> String {
-    let mut output = format!("DuckDuckGo search results for `{query}`:\n\n");
+    let mut output = format!("XingYun OpenSearch results for `{query}`:\n\n");
     for (index, result) in results.iter().enumerate() {
         output.push_str(&format!(
             "{}. {}\n   URL: {}\n",
@@ -159,33 +183,89 @@ fn format_results(query: &str, results: &[SearchResult]) -> String {
     output
 }
 
-fn parse_duckduckgo_lite_results(html: &str, max_results: usize) -> Vec<SearchResult> {
-    let anchors = extract_anchors(html);
+fn endpoint_separator(endpoint: &str) -> &'static str {
+    if endpoint.contains('?') {
+        "&"
+    } else {
+        "?"
+    }
+}
+
+fn search_setting(name: &str) -> Option<String> {
+    std::env::var(name).ok().and_then(non_empty).or_else(|| {
+        search_env_files()
+            .into_iter()
+            .find_map(|path| read_env_file_value(&path, name))
+    })
+}
+
+fn search_env_files() -> Vec<PathBuf> {
+    let mut paths = vec![PathBuf::from(".env")];
+    if let Some(config_dir) = dirs::config_dir() {
+        paths.push(config_dir.join("codemindx").join(".env"));
+        paths.push(config_dir.join("goose").join(".env"));
+    }
+    paths
+}
+
+fn read_env_file_value(path: &Path, name: &str) -> Option<String> {
+    let contents = std::fs::read_to_string(path).ok()?;
+    contents.lines().find_map(|line| parse_env_line(line, name))
+}
+
+fn parse_env_line(line: &str, name: &str) -> Option<String> {
+    let line = line.trim();
+    if line.is_empty() || line.starts_with('#') {
+        return None;
+    }
+
+    let (key, value) = line.split_once('=')?;
+    if key.trim() != name {
+        return None;
+    }
+
+    let value = value
+        .trim()
+        .trim_matches(|ch| ch == '"' || ch == '\'')
+        .to_string();
+    non_empty(value)
+}
+
+fn non_empty(value: String) -> Option<String> {
+    if value.trim().is_empty() {
+        None
+    } else {
+        Some(value)
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct OpenSearchResponse {
+    results: Vec<OpenSearchResult>,
+}
+
+#[derive(Debug, Deserialize)]
+struct OpenSearchResult {
+    title: Option<String>,
+    url: Option<String>,
+    content: Option<String>,
+}
+
+fn parse_opensearch_results(response: OpenSearchResponse, max_results: usize) -> Vec<SearchResult> {
     let mut results = Vec::new();
+    let mut seen_urls = HashSet::new();
 
-    for (position, anchor) in anchors.iter().enumerate() {
-        let Some(url) = normalize_result_url(&anchor.href) else {
-            continue;
-        };
-        if is_duckduckgo_internal_url(&url) {
-            continue;
-        }
-
-        let title = clean_text(&anchor.text);
-        if title.is_empty()
-            || results
-                .iter()
-                .any(|result: &SearchResult| result.url == url)
-        {
+    for result in response.results {
+        let title = result.title.unwrap_or_default().trim().to_string();
+        let url = result.url.unwrap_or_default().trim().to_string();
+        if title.is_empty() || url.is_empty() || !seen_urls.insert(url.clone()) {
             continue;
         }
 
-        let snippet_html =
-            html_between_anchor_and_next_anchor(html, anchor.end, anchors.get(position + 1));
         results.push(SearchResult {
             title,
             url,
-            snippet: clean_snippet(snippet_html),
+            snippet: clean_text(&result.content.unwrap_or_default()),
         });
 
         if results.len() >= max_results {
@@ -194,100 +274,6 @@ fn parse_duckduckgo_lite_results(html: &str, max_results: usize) -> Vec<SearchRe
     }
 
     results
-}
-
-#[derive(Debug)]
-struct Anchor {
-    href: String,
-    text: String,
-    start: usize,
-    end: usize,
-}
-
-fn extract_anchors(html: &str) -> Vec<Anchor> {
-    let mut anchors = Vec::new();
-    let mut offset = 0;
-
-    while let Some(relative_start) = html[offset..].find("<a") {
-        let start = offset + relative_start;
-        let Some(open_relative_end) = html[start..].find('>') else {
-            break;
-        };
-        let open_end = start + open_relative_end + 1;
-        let Some(close_relative_start) = html[open_end..].find("</a>") else {
-            break;
-        };
-        let close_start = open_end + close_relative_start;
-        let end = close_start + "</a>".len();
-        let tag = &html[start..open_end];
-
-        if let Some(href) = extract_attr(tag, "href") {
-            anchors.push(Anchor {
-                href,
-                text: html[open_end..close_start].to_string(),
-                start,
-                end,
-            });
-        }
-
-        offset = end;
-    }
-
-    anchors
-}
-
-fn html_between_anchor_and_next_anchor<'a>(
-    html: &'a str,
-    start: usize,
-    next: Option<&Anchor>,
-) -> &'a str {
-    let end = next
-        .map(|anchor| anchor.start)
-        .unwrap_or_else(|| (start + 1200).min(html.len()));
-    &html[start..end]
-}
-
-fn extract_attr(tag: &str, attr: &str) -> Option<String> {
-    let quoted = format!("{attr}=\"");
-    if let Some(start) = tag.find(&quoted).map(|index| index + quoted.len()) {
-        let end = tag[start..].find('"')?;
-        return Some(html_unescape(&tag[start..start + end]));
-    }
-
-    let single_quoted = format!("{attr}='");
-    let start = tag
-        .find(&single_quoted)
-        .map(|index| index + single_quoted.len())?;
-    let end = tag[start..].find('\'')?;
-    Some(html_unescape(&tag[start..start + end]))
-}
-
-fn normalize_result_url(raw_url: &str) -> Option<String> {
-    let raw_url = raw_url.replace("&amp;", "&");
-    if let Some(start) = raw_url.find("uddg=") {
-        let encoded = &raw_url[start + "uddg=".len()..];
-        let encoded = encoded.split('&').next().unwrap_or(encoded);
-        return urlencoding::decode(encoded)
-            .ok()
-            .map(|url| url.into_owned());
-    }
-    if raw_url.starts_with("http://") || raw_url.starts_with("https://") {
-        return Some(raw_url);
-    }
-    None
-}
-
-fn is_duckduckgo_internal_url(url: &str) -> bool {
-    url.contains("duckduckgo.com") || url.contains("duck.com")
-}
-
-fn clean_snippet(html: &str) -> String {
-    let text = clean_text(html);
-    text.split_whitespace()
-        .collect::<Vec<_>>()
-        .join(" ")
-        .trim_matches(|ch: char| ch == '-' || ch == '|' || ch.is_whitespace())
-        .to_string()
 }
 
 fn clean_text(html: &str) -> String {
@@ -366,15 +352,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parses_duckduckgo_redirect_results() {
-        let html = r#"
-            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.com%2Fdocs&amp;rut=abc">Example Docs</a>
-            <td class="result-snippet">Useful documentation &amp; examples.</td>
-            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.org%2Fblog">Example Blog</a>
-            <td class="result-snippet">A blog post.</td>
-        "#;
+    fn parses_opensearch_results() {
+        let response = OpenSearchResponse {
+            results: vec![
+                OpenSearchResult {
+                    title: Some("Example Docs".to_string()),
+                    url: Some("https://example.com/docs".to_string()),
+                    content: Some("Useful documentation &amp; examples.".to_string()),
+                },
+                OpenSearchResult {
+                    title: Some("Example Blog".to_string()),
+                    url: Some("https://example.org/blog".to_string()),
+                    content: Some("A blog post.".to_string()),
+                },
+            ],
+        };
 
-        let results = parse_duckduckgo_lite_results(html, 10);
+        let results = parse_opensearch_results(response, 10);
 
         assert_eq!(results.len(), 2);
         assert_eq!(results[0].title, "Example Docs");
@@ -385,13 +379,28 @@ mod tests {
     }
 
     #[test]
-    fn skips_duckduckgo_internal_links() {
-        let html = r#"
-            <a href="https://duckduckgo.com/settings">Settings</a>
-            <a href="https://example.com">Example</a>
-        "#;
+    fn skips_invalid_and_duplicate_results() {
+        let response = OpenSearchResponse {
+            results: vec![
+                OpenSearchResult {
+                    title: Some("".to_string()),
+                    url: Some("https://example.com/empty-title".to_string()),
+                    content: None,
+                },
+                OpenSearchResult {
+                    title: Some("Example".to_string()),
+                    url: Some("https://example.com".to_string()),
+                    content: None,
+                },
+                OpenSearchResult {
+                    title: Some("Example Duplicate".to_string()),
+                    url: Some("https://example.com".to_string()),
+                    content: None,
+                },
+            ],
+        };
 
-        let results = parse_duckduckgo_lite_results(html, 10);
+        let results = parse_opensearch_results(response, 10);
 
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].url, "https://example.com");
@@ -399,14 +408,43 @@ mod tests {
 
     #[test]
     fn respects_max_results() {
-        let html = r#"
-            <a href="https://example.com/1">One</a>
-            <a href="https://example.com/2">Two</a>
-        "#;
+        let response = OpenSearchResponse {
+            results: vec![
+                OpenSearchResult {
+                    title: Some("One".to_string()),
+                    url: Some("https://example.com/1".to_string()),
+                    content: None,
+                },
+                OpenSearchResult {
+                    title: Some("Two".to_string()),
+                    url: Some("https://example.com/2".to_string()),
+                    content: None,
+                },
+            ],
+        };
 
-        let results = parse_duckduckgo_lite_results(html, 1);
+        let results = parse_opensearch_results(response, 1);
 
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].title, "One");
+    }
+
+    #[test]
+    fn parses_env_file_values() {
+        assert_eq!(
+            parse_env_line("XINGYUN_OPENSEARCH_API_KEY='test-key'", SEARCH_API_KEY_ENV),
+            Some("test-key".to_string())
+        );
+        assert_eq!(
+            parse_env_line(
+                "XINGYUN_OPENSEARCH_URL=\"https://example.com/search\"",
+                SEARCH_ENDPOINT_ENV
+            ),
+            Some("https://example.com/search".to_string())
+        );
+        assert_eq!(
+            parse_env_line("# XINGYUN_OPENSEARCH_API_KEY=nope", SEARCH_API_KEY_ENV),
+            None
+        );
     }
 }
