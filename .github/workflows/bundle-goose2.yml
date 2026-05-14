@@ -167,7 +167,7 @@ jobs:
       - name: Prepare goose binary with target triple
         if: inputs.cli-run-id == ''
         run: |
-          TRIPLE=$(rustc --print host-tuple)
+          TRIPLE="aarch64-apple-darwin"
           cp target/release/goose "target/release/goose-${TRIPLE}"
           ls -lh "target/release/goose-${TRIPLE}"
 
@@ -563,7 +563,7 @@ jobs:
       - name: Prepare goose binary with target triple
         if: inputs.cli-run-id == ''
         run: |
-          TRIPLE=$(rustc --print host-tuple)
+          TRIPLE="x86_64-unknown-linux-gnu"
           cp target/release/goose "target/release/goose-${TRIPLE}"
           ls -lh "target/release/goose-${TRIPLE}"
 
