@@ -328,12 +328,7 @@ impl ApiClient {
             client_builder = client_builder.default_headers(headers);
         }
         if streaming {
-            client_builder = client_builder
-                .no_gzip()
-                .no_brotli()
-                .no_deflate()
-                .no_zstd()
-                .http1_only();
+            client_builder = client_builder.no_gzip().no_brotli().no_deflate().no_zstd();
         }
         if let Some(tls_config) = tls_config {
             client_builder = Self::configure_tls(client_builder, tls_config)?;

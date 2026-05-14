@@ -770,19 +770,32 @@ where
 
         'outer: while let Some(response) = stream.next().await {
             let response_str = response?;
+            if response_str.trim().is_empty() {
+                continue;
+            }
             let line = strip_data_prefix(&response_str);
 
             if line.is_some_and(|l| l == "[DONE]") {
                 break 'outer;
             }
 
-            if line.is_none() || line.is_some_and(|l| l.is_empty()) {
+            if line.is_some_and(|l| l.is_empty()) {
                 continue
             }
 
-            let chunk: StreamingChunk = parse_streaming_chunk(
-                line.ok_or_else(|| anyhow!("unexpected stream format"))?
-            )?;
+            let line = match line {
+                Some(line) => line,
+                None => {
+                    let field_name = response_str.split_once(':').map(|(field, _)| field);
+                    if matches!(field_name, Some("event" | "id" | "retry")) || response_str.starts_with(':') {
+                        continue;
+                    }
+
+                    Err(anyhow!("unexpected stream format: {response_str:?}"))?
+                }
+            };
+
+            let chunk: StreamingChunk = parse_streaming_chunk(line)?;
 
             if !chunk.choices.is_empty() {
                 if let Some(details) = &chunk.choices[0].delta.reasoning_details {
@@ -815,6 +828,9 @@ where
                     while !done {
                         if let Some(response_chunk) = stream.next().await {
                             let response_str = response_chunk?;
+                            if response_str.trim().is_empty() {
+                                continue;
+                            }
                             if let Some(line) = strip_data_prefix(&response_str) {
                                 if line == "[DONE]" {
                                     break 'outer;

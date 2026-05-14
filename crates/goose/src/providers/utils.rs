@@ -7,7 +7,7 @@ use anyhow::{anyhow, Result};
 use base64::Engine;
 use fs_err::File;
 use regex::Regex;
-use reqwest::{Response, StatusCode};
+use reqwest::{header::HeaderMap, Response, StatusCode};
 use rmcp::model::{AnnotateAble, ImageContent, RawImageContent};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -442,6 +442,13 @@ impl RequestLog {
         }))
     }
 
+    pub fn diagnostic(&mut self, event: &str, data: Value) -> Result<()> {
+        self.write_json(&serde_json::json!({
+            "event": event,
+            "diagnostic": data,
+        }))
+    }
+
     pub fn write<Payload>(&mut self, data: &Payload, usage: Option<&Usage>) -> Result<()>
     where
         Payload: Serialize,
@@ -475,6 +482,57 @@ impl Drop for RequestLog {
         }
         let _ = self.finish();
     }
+}
+
+pub fn streaming_response_diagnostic(response: &Response) -> Value {
+    serde_json::json!({
+        "url": safe_response_url(response),
+        "status": response.status().as_u16(),
+        "version": format!("{:?}", response.version()),
+        "headers": selected_response_headers(response.headers()),
+    })
+}
+
+pub fn error_chain_diagnostic(error: &anyhow::Error) -> Value {
+    Value::Array(
+        error
+            .chain()
+            .map(|cause| Value::String(cause.to_string()))
+            .collect(),
+    )
+}
+
+fn selected_response_headers(headers: &HeaderMap) -> Value {
+    let selected = [
+        "content-type",
+        "content-encoding",
+        "transfer-encoding",
+        "content-length",
+        "x-request-id",
+        "x-ratelimit-request-id",
+        "cf-ray",
+        "date",
+        "server",
+    ];
+    let mut value = serde_json::Map::new();
+    for name in selected {
+        if let Some(header) = headers.get(name) {
+            if let Ok(header) = header.to_str() {
+                value.insert(name.to_string(), Value::String(header.to_string()));
+            }
+        }
+    }
+    Value::Object(value)
+}
+
+fn safe_response_url(response: &Response) -> Value {
+    let url = response.url();
+    serde_json::json!({
+        "scheme": url.scheme(),
+        "host": url.host_str(),
+        "port": url.port(),
+        "path": url.path(),
+    })
 }
 
 /// Safely parse a JSON string that may contain doubly-encoded or malformed JSON.

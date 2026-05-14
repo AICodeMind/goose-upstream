@@ -14,7 +14,9 @@ use super::api_client::ApiClient;
 use super::base::{MessageStream, Provider};
 use super::errors::ProviderError;
 use super::retry::ProviderRetry;
-use super::utils::{ImageFormat, RequestLog};
+use super::utils::{
+    error_chain_diagnostic, streaming_response_diagnostic, ImageFormat, RequestLog,
+};
 use crate::conversation::message::Message;
 use crate::model::ModelConfig;
 use crate::providers::formats::openai::{create_request, response_to_streaming_message};
@@ -141,6 +143,8 @@ pub fn stream_openai_compat(
     response: Response,
     mut log: RequestLog,
 ) -> Result<MessageStream, ProviderError> {
+    let response_diagnostic = streaming_response_diagnostic(&response);
+    let _ = log.diagnostic("stream_response_start", response_diagnostic.clone());
     let stream = response.bytes_stream().map_err(std::io::Error::other);
 
     Ok(Box::pin(try_stream! {
@@ -150,11 +154,37 @@ pub fn stream_openai_compat(
 
         let message_stream = response_to_streaming_message(framed);
         pin!(message_stream);
+        let mut stream_items_seen = 0usize;
+        let mut messages_seen = 0usize;
+        let mut usage_seen = 0usize;
         while let Some(message) = message_stream.next().await {
-            let (message, usage) = message.map_err(|e|
-                e.downcast::<ProviderError>()
-                    .unwrap_or_else(|e| ProviderError::RequestFailed(format!("Stream decode error: {e}")))
-            )?;
+            let (message, usage) = match message {
+                Ok((message, usage)) => (message, usage),
+                Err(error) => {
+                    let diagnostic = serde_json::json!({
+                        "response": response_diagnostic,
+                        "stream_progress": {
+                            "items_seen": stream_items_seen,
+                            "messages_seen": messages_seen,
+                            "usage_seen": usage_seen,
+                        },
+                        "error_chain": error_chain_diagnostic(&error),
+                    });
+                    let _ = log.diagnostic("stream_decode_error", diagnostic);
+                    let provider_error = error
+                        .downcast::<ProviderError>()
+                        .unwrap_or_else(|error| ProviderError::RequestFailed(format!("Stream decode error: {error}")));
+                    let _ = log.error(&provider_error);
+                    Err(provider_error)?
+                }
+            };
+            stream_items_seen += 1;
+            if message.is_some() {
+                messages_seen += 1;
+            }
+            if usage.is_some() {
+                usage_seen += 1;
+            }
             log.write(&message, usage.as_ref().map(|f| f.usage).as_ref())?;
             yield (message, usage);
         }
