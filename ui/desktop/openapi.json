@@ -4588,6 +4588,11 @@
           "name": {
             "type": "string"
           },
+          "request_body": {
+            "type": "object",
+            "additionalProperties": {},
+            "nullable": true
+          },
           "requires_auth": {
             "type": "boolean"
           },
