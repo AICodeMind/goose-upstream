@@ -213,6 +213,14 @@ export type DeclarativeProviderConfig = {
     catalog_provider_id?: string | null;
     description?: string | null;
     display_name: string;
+    /**
+     * Controls whether `fetch_supported_models` calls the provider's `/v1/models`
+     * endpoint or returns the static `models` list directly.
+     *
+     * - `Some(false)` + non-empty `models`: return the static list; no API call.
+     * Construction fails if `models` is empty.
+     * - `Some(true)` or `None`: try the API; fall back to `models` on 404.
+     */
     dynamic_models?: boolean | null;
     engine: ProviderEngine;
     env_vars?: Array<EnvVarConfig> | null;
@@ -223,6 +231,9 @@ export type DeclarativeProviderConfig = {
     model_doc_link?: string | null;
     models: Array<ModelInfo>;
     name: string;
+    request_body?: {
+        [key: string]: unknown;
+    } | null;
     requires_auth?: boolean;
     setup_steps?: Array<string>;
     skip_canonical_filtering?: boolean;
