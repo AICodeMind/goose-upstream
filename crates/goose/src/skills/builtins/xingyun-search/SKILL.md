@@ -1,5 +1,5 @@
 ---
-name: ddg-search
+name: xingyun-search
 description: Web search using XingYun OpenSearch via web_fetch. Use the built-in web_search tool first; this skill documents the direct HTTP API fallback for environments where tool instructions are needed. Provides titles, URLs, and snippets for research queries.
 ---
 

@@ -7,5 +7,5 @@ extensions:
     type: platform
     name: web_search
     display_name: Web Search
-    description: Search the web with DuckDuckGo without requiring an API key
+    description: Search the web with XingYun OpenSearch
     bundled: true
